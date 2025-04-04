@@ -447,6 +447,9 @@ async def check_status():
     try:
         status_channel = bot.get_channel(1339360776095531078)
         if status_channel:
+            # Clear existing messages
+            await status_channel.purge()
+            
             response = requests.get('http://0.0.0.0:5000/')
             if response.status_code == 200:
                 await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="🟢 ระบบทำงานปกติ"))
