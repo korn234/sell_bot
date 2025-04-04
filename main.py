@@ -253,7 +253,16 @@ class ConfirmView(View):
                                     f"**คีย์ใช้งาน ({self.duration})**\n"
                                     f"```\n{key}\n```",
                                 color=discord.Color.gold())
-                            
+                            # ✅ ถาวร = ส่งลิงก์กลุ่ม Telegram
+                            if self.duration == "ถาวร":
+                                try:
+                                    dm_channel = await interaction.user.create_dm()
+                                    await dm_channel.send(
+                                        "🎁 คุณได้รับสิทธิ์เข้ากลุ่มถาวร!\n\n📌 กลุ่ม Telegram:\nhttps://t.me/+ZunSLIMtyEZjODc1\n\n🛡️ **กลุ่มถาวร** ใช้งานได้ตลอดชีพ"
+                                    )
+                                except Exception as e:
+                                    print(f"❌ ไม่สามารถส่ง DM กลุ่มถาวรได้: {e}")
+                                                    
                         else:
                             # Season prices
                             if key in season_keys[self.duration]:
