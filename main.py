@@ -243,14 +243,14 @@ class ConfirmView(View):
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
                             video_url = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
 
-                        product_embed = discord.Embed(
-                            title="🎮 รายละเอียดสินค้า",
-                            description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                            "**ตัวเกม 🎮**\n"
-                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025"
-                            f"**คีย์ใช้งาน ({self.duration})**\n"
-                            f"```\n{key}\n```",
-                            color=discord.Color.gold())
+                            product_embed = discord.Embed(
+                                title="🎮 รายละเอียดสินค้า",
+                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                                    "**ตัวเกม 🎮**\n"
+                                    "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025"
+                                    f"**คีย์ใช้งาน ({self.duration})**\n"
+                                    f"```\n{key}\n```",
+                                color=discord.Color.gold())
                             
                         else:
                             # Season prices
@@ -262,16 +262,16 @@ class ConfirmView(View):
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
                             video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
 
-                        product_embed = discord.Embed(
-                            title="🎮 รายละเอียดสินค้า",
-                            description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                            "**DNS กันดำ ☣️**\n"
-                            "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                            "**ตัวเกม 🎮**\n"
-                            "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
-                            f"**คีย์ใช้งาน ({self.duration})**\n"
-                            f"```\n{key}\n```",
-                            color=discord.Color.gold())
+                            product_embed = discord.Embed(
+                                title="🎮 รายละเอียดสินค้า",
+                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                                    "**DNS กันดำ ☣️**\n"
+                                    "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
+                                    "**ตัวเกม 🎮**\n"
+                                    "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
+                                    f"**คีย์ใช้งาน ({self.duration})**\n"
+                                    f"```\n{key}\n```",
+                                color=discord.Color.gold())
                         # Send to DM
                         dm_channel = await interaction.user.create_dm()
                         await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
