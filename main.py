@@ -339,13 +339,13 @@ class SeasonPriceDropdown(Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="1 ซีซั่น",
-                                 description="ราคา 150 บาท",
+                                 description=f"ราคา 150 บาท | เหลือ {len(season_keys['1 ซีซั่น'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="3 ซีซั่น",
-                                 description="ราคา 300 บาท",
+                                 description=f"ราคา 300 บาท | เหลือ {len(season_keys['3 ซีซั่น'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="ถาวร",
-                                 description="ราคา 400 บาท",
+                                 description=f"ราคา 400 บาท | เหลือ {len(season_keys['ถาวร'])} คีย์",
                                  emoji="🔥"),
         ]
         super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
@@ -379,16 +379,16 @@ class DailyPriceDropdown(Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="3 วัน",
-                                 description="ราคา 99 บาท",
+                                 description=f"ราคา 99 บาท | เหลือ {len(daily_keys['3 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="15 วัน",
-                                 description="ราคา 190 บาท",
+                                 description=f"ราคา 190 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="30 วัน",
-                                 description="ราคา 300 บาท",
+                                 description=f"ราคา 300 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="ถาวร",
-                                 description="ราคา 799 บาท",
+                                 description=f"ราคา 799 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
                                  emoji="🔥"),
         ]
         super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
@@ -603,6 +603,16 @@ async def clear_and_post():
     await clear_channels()
     await post_messages()
 
+async def notify_new_key(type: str, duration: str, key: str):
+    notification_channel = bot.get_channel(1357308234137866370)
+    if notification_channel:
+        embed = discord.Embed(
+            title="🔑 มีการเพิ่มคีย์ใหม่!",
+            description=f"ประเภท: {type}\nระยะเวลา: {duration}\nคีย์คงเหลือ: {len(daily_keys[duration] if type == 'day' else season_keys[duration])} คีย์",
+            color=discord.Color.green()
+        )
+        await notification_channel.send(embed=embed)
+
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
@@ -624,10 +634,12 @@ async def add_key(interaction: discord.Interaction, type: str, duration: str, ke
     if type == "day" and duration in daily_keys:
         daily_keys[duration].append(key)
         save_daily_keys()
+        await notify_new_key("day", duration, key)
         await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
     elif type == "season" and duration in season_keys:
         season_keys[duration].append(key)
         save_keys()
+        await notify_new_key("season", duration, key)
         await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
     else:
         await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
