@@ -241,8 +241,9 @@ class ConfirmView(View):
                                 print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
-                            video_url = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
-
+                            video_url_1 = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
+                            video_url_2 = "https://cdn.discordapp.com/attachments/1357308234137866370/1357763650227535883/videoplayback.mp4?ex=67f16370&is=67f011f0&hm=105a9ded6c87d346fd5daad3d1004b891738dc5537d4101ab8465ab6e710fd56&"
+                           
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
@@ -262,6 +263,10 @@ class ConfirmView(View):
                                     )
                                 except Exception as e:
                                     print(f"❌ ไม่สามารถส่ง DM กลุ่มถาวรได้: {e}")
+                            dm_channel = await interaction.user.create_dm()
+                            await dm_channel.send(f"🎥 วิดีโอตัวอย่าง 1: {video_url_1}")
+                            await dm_channel.send(f"🎥 วิดีโอตัวอย่าง 2: {video_url_2}")
+                            await dm_channel.send(embed=product_embed)
                                                     
                         else:
                             # Season prices
@@ -283,10 +288,10 @@ class ConfirmView(View):
                                     f"**คีย์ใช้งาน ({self.duration})**\n"
                                     f"```\n{key}\n```",
                                 color=discord.Color.gold())
-                        # Send to DM
-                        dm_channel = await interaction.user.create_dm()
-                        await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
-                        await dm_channel.send(embed=product_embed)
+                            # Send to DM
+                            dm_channel = await interaction.user.create_dm()
+                            await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
+                            await dm_channel.send(embed=product_embed)
                         
                         # Send success message in channel
                         success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
