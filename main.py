@@ -131,42 +131,100 @@ class ConfirmView(View):
             color=discord.Color.blue())
         embed.set_image(url=qr_url)
 
-        class ConfirmPaymentView(View):
+class ConfirmPaymentView(View):
+    def __init__(self, price, duration):
+        super().__init__()
+        self.price = price
+        self.duration = duration
 
-            def __init__(self, price, duration):
-                super().__init__()
-                self.price = price
-                self.duration = duration
+    async def check_channel(self, interaction: discord.Interaction):
+        # ตรวจสอบว่า channel ยังคงอยู่และสามารถเข้าถึงได้
+        if not interaction.channel or not interaction.guild.get_channel(interaction.channel.id):
+            await interaction.response.send_message("❌ ช่องนี้ถูกลบแล้ว หรือไม่สามารถเข้าถึงได้", ephemeral=True)
+            return False
+        return True
 
-            @discord.ui.button(label="✅ ยืนยันการโอนเงิน", style=discord.ButtonStyle.green)
-            async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await self.view.update_status(interaction, "⌛ กำลังตรวจสอบการชำระเงิน...", discord.Color.gold())
-                def check_payment(message):
-                    return message.author == interaction.user and message.channel == interaction.channel and message.attachments
+    @discord.ui.button(label="✅ ยืนยันการโอนเงิน", style=discord.ButtonStyle.green)
+    async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not await self.check_channel(interaction):
+            return
 
-                await interaction.response.send_message("📎 กรุณาส่งสลิปการโอนเงินภายใน 5 นาที", ephemeral=True)
+        await self.view.update_status(interaction, "⌛ กำลังตรวจสอบการชำระเงิน...", discord.Color.gold())
 
-                try:
-                    payment_msg = await bot.wait_for('message', check=check_payment, timeout=300)
-                    if not payment_msg.attachments:
-                        await self.view.update_status(interaction, "❌ ไม่พบสลิปการโอนเงิน กรุณาลองใหม่อีกครั้ง", discord.Color.red())
-                        return
-                except TimeoutError:
-                    await self.view.update_status(interaction, "⏰ หมดเวลาส่งสลิป กรุณาทำรายการใหม่", discord.Color.red())
-                    return
+        def check_payment(message):
+            return message.author == interaction.user and message.channel == interaction.channel and message.attachments
 
-                # Logic for assigning roles and sending product details
-                # Your existing code for processing payment and sending product keys
-                await interaction.user.send(embed=product_embed)
+        await interaction.response.send_message("📎 กรุณาส่งสลิปการโอนเงินภายใน 5 นาที", ephemeral=True)
 
-            @discord.ui.button(label="❌ ยกเลิกการชำระเงิน", style=discord.ButtonStyle.red)
-            async def cancel_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await self.view.update_status(interaction, "🚫 ยกเลิกการทำรายการแล้ว", discord.Color.red())
-                await interaction.response.send_message("❌ ยกเลิกการชำระเงินแล้ว", ephemeral=True)
-                await asyncio.sleep(5)
-                if isinstance(interaction.channel, discord.TextChannel):
-                    await interaction.channel.delete()
+        try:
+            payment_msg = await bot.wait_for('message', check=check_payment, timeout=300)
+            if not payment_msg.attachments:
+                await self.view.update_status(interaction, "❌ ไม่พบสลิปการโอนเงิน กรุณาลองใหม่อีกครั้ง", discord.Color.red())
+                await interaction.followup.send("❌ ไม่พบสลิปการโอนเงิน กรุณาลองใหม่อีกครั้ง", ephemeral=True)
+                return
+        except TimeoutError:
+            await self.view.update_status(interaction, "⏰ หมดเวลาส่งสลิป กรุณาทำรายการใหม่", discord.Color.red())
+            await interaction.followup.send("⏰ หมดเวลาส่งสลิป กรุณาทำรายการใหม่", ephemeral=True)
+            return
 
+        try:
+            if self.price in [150, 300]:
+                role = interaction.guild.get_role(1301486981641015416)
+                if role:
+                    await interaction.user.add_roles(role)
+            elif self.price == 400:
+                role1 = interaction.guild.get_role(1301486981641015416)
+                role2 = interaction.guild.get_role(1337637128410103882)
+                if role1 and role2:
+                    await interaction.user.add_roles(role1, role2)
+
+            key = get_next_key(self.duration)
+            if not key:
+                await self.view.update_status(interaction, "❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", discord.Color.red())
+                await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
+                return
+
+            video_url = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
+            product_embed = discord.Embed(
+                title="🎮 รายละเอียดสินค้า",
+                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                "**ตัวเกม 🎮**\n"
+                "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
+                f"**คีย์ใช้งาน ({self.duration})**\n"
+                f"```\n{key}\n```",
+                color=discord.Color.gold())
+            await interaction.user.send(embed=product_embed)
+
+            notification_channel = interaction.guild.get_channel(1357308234137866370)
+            if notification_channel:
+                notification_embed = discord.Embed(
+                    title="🛍️ การสั่งซื้อใหม่!",
+                    description=(
+                        f"👤 ผู้ซื้อ: {interaction.user.mention}\n"
+                        f"🎮 แพ็คเกจ: {self.price} บาท\n"
+                        f"📱 ผู้รับเงิน: {self.duration}\n"
+                        f"⏱️ เวลา: <t:{int(discord.utils.utcnow().timestamp())}:F>"),
+                    color=discord.Color.green())
+                await notification_channel.send(embed=notification_embed)
+
+            await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
+
+        except discord.HTTPException as e:
+            await self.view.update_status(interaction, f"❌ ไม่สามารถส่งข้อความได้: {str(e)}", discord.Color.red())
+            await interaction.followup.send(f"❌ ไม่สามารถส่งข้อความได้: {str(e)}", ephemeral=True)
+            return
+
+    @discord.ui.button(label="❌ ยกเลิกการชำระเงิน", style=discord.ButtonStyle.red)
+    async def cancel_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not await self.check_channel(interaction):
+            return
+        
+        await self.view.update_status(interaction, "🚫 ยกเลิกการทำรายการแล้ว", discord.Color.red())
+        await interaction.response.send_message("❌ ยกเลิกการชำระเงินแล้ว", ephemeral=True)
+        await asyncio.sleep(5)
+        if isinstance(interaction.channel, discord.TextChannel):
+            await interaction.channel.delete()
+            
         confirm_view = ConfirmPaymentView(self.price, self.duration)
         confirm_view.view = self  # Assign self to the inner view for access to update_status
         confirm_view.add_item(CloseButton())
