@@ -433,7 +433,15 @@ async def on_ready():
     except Exception as e:
         print(e)
     check_status.start()
-
+        # Clear messages in channels before posting new ones
+    daily_channel = bot.get_channel(DAILY_CHANNEL_ID)
+    season_channel = bot.get_channel(SEASON_CHANNEL_ID)
+    
+    if daily_channel:
+        await daily_channel.purge()
+    if season_channel:
+        await season_channel.purge()
+        
 @tasks.loop(minutes=5)
 async def check_status():
     try:
