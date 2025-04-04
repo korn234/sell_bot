@@ -246,6 +246,8 @@ class ConfirmView(View):
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                                    "**กลุ่มอัพเดทข่าวสารโปร**\n"
+                                    "https://t.me/savageios"
                                     "**ตัวเกม 🎮**\n"
                                     "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025"
                                     f"**คีย์ใช้งาน ({self.duration})**\n"
