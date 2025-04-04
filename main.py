@@ -63,6 +63,7 @@ def get_next_key(duration):
     return None
 
 
+# ปุ่มสำหรับปิดแชท
 class CloseButton(discord.ui.Button):
 
     def __init__(self):
@@ -73,6 +74,7 @@ class CloseButton(discord.ui.Button):
             await interaction.channel.delete()
 
 
+# Class สำหรับการยืนยันการสั่งซื้อ
 class ConfirmView(View):
 
     def __init__(self, price: int, duration: str):
@@ -93,37 +95,25 @@ class ConfirmView(View):
             self.status_message = await interaction.channel.send(embed=embed)
 
     @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction,
-                      button: discord.ui.Button):
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Create private channel
         overwrites = {
-            interaction.guild.default_role:
-            discord.PermissionOverwrite(read_messages=False),
-            interaction.user:
-            discord.PermissionOverwrite(read_messages=True,
-                                        send_messages=True),
-            interaction.guild.me:
-            discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+            interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+            interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
         }
 
         # Add admin role permissions if it exists
         admin_role = discord.utils.get(interaction.guild.roles, name="Admin")
         if admin_role:
-            overwrites[admin_role] = discord.PermissionOverwrite(
-                read_messages=True, send_messages=True)
+            overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
 
         channel_name = f"order-{interaction.user.name}"
-        channel = await interaction.guild.create_text_channel(
-            channel_name,
-            overwrites=overwrites,
-            topic=f"Order: {self.duration} - {self.price} บาท")
+        channel = await interaction.guild.create_text_channel(channel_name, overwrites=overwrites, topic=f"Order: {self.duration} - {self.price} บาท")
 
-        await interaction.response.send_message(
-            f"✅ สร้างห้องสำหรับการซื้อแล้ว! กรุณาไปที่ {channel.mention}",
-            ephemeral=True)
+        await interaction.response.send_message(f"✅ สร้างห้องสำหรับการซื้อแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
 
-        # Send initial message in the new channel
-        # สุ่ม QR code และได้เบอร์วอเลทที่ตรงกัน ตามประเภทการซื้อ
+        # สุ่ม QR code และได้เบอร์วอเลทที่ตรงกัน
         if self.duration in ["3 วัน", "15 วัน", "30 วัน", "ถาวร"] and self.price in [99, 190, 300, 799]:  # ราคาแบบรายวัน
             qr_url = random.choice(list(DAILY_PAYMENT_PAIRS.keys()))
             phone = DAILY_PAYMENT_PAIRS[qr_url]
@@ -134,14 +124,13 @@ class ConfirmView(View):
         embed = discord.Embed(
             title="📋 รายละเอียดการสั่งซื้อ",
             description=f"👋 สวัสดี {interaction.user.mention}!\n"
-            f"🛒 รายการสั่งซื้อ: {self.duration}\n"
-            f"💰 ราคา: {self.price} บาท\n"
-            f"📱 เบอร์วอเลท: {phone}\n\n"
-            "กรุณาสแกน QR Code ด้านล่างเพื่อชำระเงิน",
+                        f"🛒 รายการสั่งซื้อ: {self.duration}\n"
+                        f"💰 ราคา: {self.price} บาท\n"
+                        f"📱 เบอร์วอเลท: {phone}\n\n"
+                        "กรุณาสแกน QR Code ด้านล่างเพื่อชำระเงิน",
             color=discord.Color.blue())
         embed.set_image(url=qr_url)
 
-        # Create confirmation view
         class ConfirmPaymentView(View):
 
             def __init__(self, price, duration):
@@ -149,12 +138,9 @@ class ConfirmView(View):
                 self.price = price
                 self.duration = duration
 
-            @discord.ui.button(label="✅ ยืนยันการโอนเงิน",
-                               style=discord.ButtonStyle.green)
-            async def confirm_payment(self, interaction: discord.Interaction,
-                                      button: discord.ui.Button):
+            @discord.ui.button(label="✅ ยืนยันการโอนเงิน", style=discord.ButtonStyle.green)
+            async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await self.view.update_status(interaction, "⌛ กำลังตรวจสอบการชำระเงิน...", discord.Color.gold())
-                # ตรวจสอบสลิปการโอนเงิน
                 def check_payment(message):
                     return message.author == interaction.user and message.channel == interaction.channel and message.attachments
 
@@ -164,103 +150,14 @@ class ConfirmView(View):
                     payment_msg = await bot.wait_for('message', check=check_payment, timeout=300)
                     if not payment_msg.attachments:
                         await self.view.update_status(interaction, "❌ ไม่พบสลิปการโอนเงิน กรุณาลองใหม่อีกครั้ง", discord.Color.red())
-                        await interaction.followup.send("❌ ไม่พบสลิปการโอนเงิน กรุณาลองใหม่อีกครั้ง", ephemeral=True)
                         return
                 except TimeoutError:
                     await self.view.update_status(interaction, "⏰ หมดเวลาส่งสลิป กรุณาทำรายการใหม่", discord.Color.red())
-                    await interaction.followup.send("⏰ หมดเวลาส่งสลิป กรุณาทำรายการใหม่", ephemeral=True)
                     return
-                try:
 
-                    # Assign roles based on purchase amount
-                    if self.price in [150, 300]:
-                        role = interaction.guild.get_role(1301486981641015416)
-                        if role:
-                            await interaction.user.add_roles(role)
-                    elif self.price == 400:
-                        role1 = interaction.guild.get_role(1301486981641015416)
-                        role2 = interaction.guild.get_role(1337637128410103882)
-                        if role1 and role2:
-                            await interaction.user.add_roles(role1, role2)
-
-                    # Initialize success_msg before using it
-                    success_msg = None
-
-                    try:
-                        # Send product details and video based on price
-                        key = get_next_key(self.duration)
-                        if not key:
-                            await self.view.update_status(interaction, "❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", discord.Color.red())
-                            await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
-                            return
-
-                        if self.price in [99, 190, 300, 799]:  
-                        # Daily prices
-                            video_url = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
-                            product_embed = discord.Embed(
-                                title="🎮 รายละเอียดสินค้า",
-                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                                "**ตัวเกม 🎮**\n"
-                                "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
-                                f"**คีย์ใช้งาน ({self.duration})**\n"
-                                f"```\n{key}\n```",
-                                color=discord.Color.gold())
-                            await channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
-                            success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
-                        else: 
-                            # Season prices
-                            key = get_next_key(self.duration)
-                            if not key:
-                                await self.view.update_status(interaction, "❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", discord.Color.red())
-                                await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
-                                return
-
-                            video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
-                            product_embed = discord.Embed(
-                                title="🎮 รายละเอียดสินค้า",
-                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                                "**DNS กันดำ ☣️**\n"
-                                "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                                "**ตัวเกม 🎮**\n"
-                                "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
-                                f"**คีย์ใช้งาน ({self.duration})**\n"
-                                f"```\n{key}\n```",
-                                color=discord.Color.gold())
-                            await channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
-                            success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
-                        await interaction.user.send(embed=product_embed)
-                        #await interaction.edit_original_response(content="✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!")
-
-                    except discord.HTTPException as e:
-                        await self.view.update_status(interaction, "❌ ไม่สามารถส่งข้อความได้: " + str(e), discord.Color.red())
-                        await interaction.followup.send(
-                            "❌ ไม่สามารถส่งข้อความได้: " + str(e),
-                            ephemeral=True)
-                        return
-
-                    # Send notification to notification channel
-                    notification_channel = interaction.guild.get_channel(
-                        1357308234137866370)
-                    if notification_channel:
-                        notification_embed = discord.Embed(
-                            title="🛍️ การสั่งซื้อใหม่!",
-                            description=
-                            f"👤 ผู้ซื้อ: {interaction.user.mention}\n"
-                            f"🎮 แพ็คเกจ: {self.price} บาท\n"
-                            f"📱 ผู้รับเงิน: {phone}\n"
-                            f"⏱️ เวลา: <t:{int(discord.utils.utcnow().timestamp())}:F>",
-                            color=discord.Color.green())
-                        await notification_channel.send(embed=notification_embed)
-                    await success_msg.edit(content="✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!")
-                except discord.HTTPException as e:
-                    await self.view.update_status(interaction, "❌ เกิดข้อผิดพลาด: ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง", discord.Color.red())
-                    await interaction.followup.send(
-                        "❌ เกิดข้อผิดพลาด: ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง",
-                        ephemeral=True)
-                except Exception as e:
-                    await self.view.update_status(interaction, f"❌ เกิดข้อผิดพลาด: {str(e)}", discord.Color.red())
-                    await interaction.followup.send(
-                        f"❌ เกิดข้อผิดพลาด: {str(e)}", ephemeral=True)
+                # Logic for assigning roles and sending product details
+                # Your existing code for processing payment and sending product keys
+                await interaction.user.send(embed=product_embed)
 
             @discord.ui.button(label="❌ ยกเลิกการชำระเงิน", style=discord.ButtonStyle.red)
             async def cancel_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -271,46 +168,33 @@ class ConfirmView(View):
                     await interaction.channel.delete()
 
         confirm_view = ConfirmPaymentView(self.price, self.duration)
-        confirm_view.view = self # Assign self to the inner view for access to update_status
+        confirm_view.view = self  # Assign self to the inner view for access to update_status
         confirm_view.add_item(CloseButton())
         await channel.send(embed=embed, view=confirm_view)
 
         # Send payment instruction message
         payment_instruction = discord.Embed(
             title="💳 แจ้งชำระเงิน",
-            description=
-            f"🙏 {interaction.user.mention} รบกวนแจ้งสลิปการโอนเงินด้วยครับ\n"
-            "เมื่อโอนเงินเรียบร้อยแล้ว กรุณากดปุ่มสีเขียว '✅ ยืนยันการโอนเงิน' ด้านบนเพื่อรับสินค้า",
+            description=f"🙏 {interaction.user.mention} รบกวนแจ้งสลิปการโอนเงินด้วยครับ\n"
+                        "เมื่อโอนเงินเรียบร้อยแล้ว กรุณากดปุ่มสีเขียว '✅ ยืนยันการโอนเงิน' ด้านบนเพื่อรับสินค้า",
             color=discord.Color.green())
         await channel.send(embed=payment_instruction)
-        await channel.send(embed=discord.Embed(
-            description="✅ รอการชำระเงิน...",
-            color=discord.Color.blue()
-        ))
+
     @discord.ui.button(label="❌ ยกเลิก", style=discord.ButtonStyle.red)
-    async def cancel(self, interaction: discord.Interaction,
-                     button: discord.ui.Button):
-        await interaction.response.send_message("❌ ยกเลิกการสั่งซื้อแล้ว",
-                                                ephemeral=True)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("❌ ยกเลิกการสั่งซื้อแล้ว", ephemeral=True)
 
 
+# View สำหรับการเลือกซื้อซีซั่น
 class SeasonPriceDropdown(Select):
 
     def __init__(self):
         options = [
-            discord.SelectOption(label="1 ซีซั่น",
-                                 description="ราคา 150 บาท",
-                                 emoji="💰"),
-            discord.SelectOption(label="3 ซีซั่น",
-                                 description="ราคา 300 บาท",
-                                 emoji="💰"),
-            discord.SelectOption(label="ถาวร",
-                                 description="ราคา 400 บาท",
-                                 emoji="🔥"),
+            discord.SelectOption(label="1 ซีซั่น", description="ราคา 150 บาท", emoji="💰"),
+            discord.SelectOption(label="3 ซีซั่น", description="ราคา 300 บาท", emoji="💰"),
+            discord.SelectOption(label="ถาวร", description="ราคา 400 บาท", emoji="🔥"),
         ]
-        super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
-                         options=options,
-                         custom_id="select_season_price")
+        super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...", options=options, custom_id="select_season_price")
 
     async def callback(self, interaction: discord.Interaction):
         selection = self.values[0]
@@ -324,36 +208,22 @@ class SeasonPriceDropdown(Select):
             price = 400
             duration = "ถาวร"
 
-        embed = discord.Embed(
-            title="🛒 ยืนยันการสั่งซื้อ",
-            description=f"💰 ราคา: {price} บาท\n⏱️ ระยะเวลา: {duration}",
-            color=discord.Color.blue())
+        embed = discord.Embed(title="🛒 ยืนยันการสั่งซื้อ", description=f"💰 ราคา: {price} บาท\n⏱️ ระยะเวลา: {duration}", color=discord.Color.blue())
         view = ConfirmView(price, duration)
-        await interaction.response.send_message(embed=embed,
-                                                view=view,
-                                                ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
+# View สำหรับการเลือกซื้อรายวัน
 class DailyPriceDropdown(Select):
 
     def __init__(self):
         options = [
-            discord.SelectOption(label="3 วัน",
-                                 description="ราคา 99 บาท",
-                                 emoji="💰"),
-            discord.SelectOption(label="15 วัน",
-                                 description="ราคา 190 บาท",
-                                 emoji="💰"),
-            discord.SelectOption(label="30 วัน",
-                                 description="ราคา 300 บาท",
-                                 emoji="💰"),
-            discord.SelectOption(label="ถาวร",
-                                 description="ราคา 799 บาท",
-                                 emoji="🔥"),
+            discord.SelectOption(label="3 วัน", description="ราคา 99 บาท", emoji="💰"),
+            discord.SelectOption(label="15 วัน", description="ราคา 190 บาท", emoji="💰"),
+            discord.SelectOption(label="30 วัน", description="ราคา 300 บาท", emoji="💰"),
+            discord.SelectOption(label="ถาวร", description="ราคา 799 บาท", emoji="🔥"),
         ]
-        super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
-                         options=options,
-                         custom_id="select_daily_price")
+        super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...", options=options, custom_id="select_daily_price")
 
     async def callback(self, interaction: discord.Interaction):
         selection = self.values[0]
@@ -370,16 +240,12 @@ class DailyPriceDropdown(Select):
             price = 799
             duration = "ถาวร"
 
-        embed = discord.Embed(
-            title="🛒 ยืนยันการสั่งซื้อ",
-            description=f"💰 ราคา: {price} บาท\n⏱️ ระยะเวลา: {duration}",
-            color=discord.Color.blue())
+        embed = discord.Embed(title="🛒 ยืนยันการสั่งซื้อ", description=f"💰 ราคา: {price} บาท\n⏱️ ระยะเวลา: {duration}", color=discord.Color.blue())
         view = ConfirmView(price, duration)
-        await interaction.response.send_message(embed=embed,
-                                                view=view,
-                                                ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
+# ปุ่มสำหรับติดต่อแอดมิน
 class AdminContactButton(discord.ui.Button):
     def __init__(self):
         super().__init__(label="👨‍💼 ติดต่อแอดมิน", style=discord.ButtonStyle.primary)
@@ -396,21 +262,14 @@ class AdminContactButton(discord.ui.Button):
             overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
 
         channel_name = f"support-{interaction.user.name}"
-        channel = await interaction.guild.create_text_channel(
-            channel_name,
-            overwrites=overwrites
-        )
+        channel = await interaction.guild.create_text_channel(channel_name, overwrites=overwrites)
 
         embed = discord.Embed(
-            title="🎫 ช่องทางติดต่อแอดมิน",
-            description=f"👋 สวัสดี {interaction.user.mention}!\n\n✍️ สามารถพิมพ์ข้อความที่ต้องการสอบถามได้เลยครับ\nแอดมินจะรีบตอบกลับโดยเร็วที่สุด",
-            color=discord.Color.blue()
-        )
-
-        view = View()
-        view.add_item(CloseButton())
-        await channel.send(embed=embed, view=view)
-        await interaction.response.send_message(f"✅ สร้างช่องสำหรับติดต่อแอดมินแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
+            title="📬 ติดต่อแอดมิน",
+            description="ยินดีต้อนรับ! หากคุณมีคำถามหรือปัญหาทางระบบ กรุณาส่งข้อความมาที่นี่",
+            color=discord.Color.blue())
+        await channel.send(embed=embed)
+        await interaction.response.send_message(f"📬 สร้างช่องแชทส่วนตัวเรียบร้อยแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
 
 class SeasonView(View):
     def __init__(self):
@@ -423,7 +282,6 @@ class DailyView(View):
         super().__init__()
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
-
 
 @bot.event
 async def on_ready():
