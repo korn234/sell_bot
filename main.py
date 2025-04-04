@@ -232,92 +232,73 @@ class ConfirmView(View):
                             await self.view.update_status(interaction, "❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", discord.Color.red())
                             await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
                             return
-# สร้าง class KeyView ภายนอกบล็อก try-except
-class KeyView(View):
-    def __init__(self, key):
-        super().__init__()
-        self.key = key
 
-    @discord.ui.button(label="คัดลอกคีย์", style=discord.ButtonStyle.primary)
-    async def copy_key(self, button: Button, interaction: discord.Interaction):
-        # ส่งข้อความที่สามารถคัดลอกได้
-        await interaction.response.send_message(f"คีย์ของคุณคือ: `{self.key}`", ephemeral=True)
+                        if self.price in [99, 190, 300, 799]:  
+                            # Daily prices
+                            if key in daily_keys[self.duration]:
+                                daily_keys[self.duration].remove(key)
+                                save_daily_keys()
+                                print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
+                            else:
+                                print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
+                            video_url_1 = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
+                            video_url_2 = "https://cdn.discordapp.com/attachments/1357308234137866370/1357763650227535883/videoplayback.mp4?ex=67f16370&is=67f011f0&hm=105a9ded6c87d346fd5daad3d1004b891738dc5537d4101ab8465ab6e710fd56&"
 
+                            product_embed = discord.Embed(
+                                title="🎮 รายละเอียดสินค้า",
+                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                                    "**กลุ่มอัพเดทข่าวสารโปร**\n"
+                                    "https://t.me/savageios\n\n"
+                                    "**ตัวเกม 🎮**\n"
+                                    "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
+                                    f"**คีย์ใช้งาน ({self.duration})**\n"
+                                    f"```\n{key}\n```",
+                                color=discord.Color.gold())
+                            # ✅ ถาวร = ส่งลิงก์กลุ่ม Telegram
+                            if self.duration == "ถาวร":
+                                try:
+                                    dm_channel = await interaction.user.create_dm()
+                                    await dm_channel.send(
+                                        "🎁 คุณได้รับสิทธิ์เข้ากลุ่มถาวร!\n\n📌 กลุ่ม Telegram:\nhttps://t.me/+ZunSLIMtyEZjODc1\n\n🛡️ **กลุ่มถาวร** ใช้งานได้ตลอดชีพ"
+                                    )
+                                except Exception as e:
+                                    print(f"❌ ไม่สามารถส่ง DM กลุ่มถาวรได้: {e}")
+                            dm_channel = await interaction.user.create_dm()
+                            await dm_channel.send(f"🎥 วิดีโอสอนโหลด: {video_url_1}")
+                            await dm_channel.send(f"🎥 วิดีโอสอนเข้าเกม: {video_url_2}")
+                            await dm_channel.send(embed=product_embed)
+                            key_message = f"```\n{key}\n```"
+                            await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
+                            await dm_channel.send(key_message)
 
-# ตัวอย่างโค้ดการใช้งานใน DM
-if self.price in [99, 190, 300, 799]:  
-    # Daily prices
-    if key in daily_keys[self.duration]:
-        daily_keys[self.duration].remove(key)
-        save_daily_keys()
-        print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
-    else:
-        print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
-    
-    video_url_1 = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
-    video_url_2 = "https://cdn.discordapp.com/attachments/1357308234137866370/1357763650227535883/videoplayback.mp4?ex=67f16370&is=67f011f0&hm=105a9ded6c87d346fd5daad3d1004b891738dc5537d4101ab8465ab6e710fd56&"
-   
-    product_embed = discord.Embed(
-        title="🎮 รายละเอียดสินค้า",
-        description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                    "**กลุ่มอัพเดทข่าวสารโปร**\n"
-                    "https://t.me/savageios\n\n"
-                    "**ตัวเกม 🎮**\n"
-                    "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
-                    f"**คีย์ใช้งาน ({self.duration})**\n"
-                    f"```\n{key}\n```",  # คีย์แสดงในรูปแบบที่สามารถคัดลอกได้
-        color=discord.Color.gold())
-    
-    # ✅ ถาวร = ส่งลิงก์กลุ่ม Telegram
-    if self.duration == "ถาวร":
-        try:
-            dm_channel = await interaction.user.create_dm()
-            await dm_channel.send(
-                "🎁 คุณได้รับสิทธิ์เข้ากลุ่มถาวร!\n\n📌 กลุ่ม Telegram:\nhttps://t.me/+ZunSLIMtyEZjODc1\n\n🛡️ **กลุ่มถาวร** ใช้งานได้ตลอดชีพ"
-            )
-        except Exception as e:
-            print(f"❌ ไม่สามารถส่ง DM กลุ่มถาวรได้: {e}")
-    
-    # ส่งวิดีโอและคีย์
-    dm_channel = await interaction.user.create_dm()
-    await dm_channel.send(f"🎥 วิดีโอสอนโหลด: {video_url_1}")
-    await dm_channel.send(f"🎥 วิดีโอสอนเข้าเกม: {video_url_2}")
-    await dm_channel.send(embed=product_embed)
-    
-    # เพิ่มปุ่มคัดลอกคีย์
-    key_view = KeyView(key)
-    await dm_channel.send("กดปุ่มด้านล่างเพื่อคัดลอกคีย์:", view=key_view)
-    
-else:
-    # Season prices
-    if key in season_keys[self.duration]:
-        season_keys[self.duration].remove(key)
-        save_keys()
-        print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
-    else:
-        print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
-    
-    video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
+                        else:
+                            # Season prices
+                            if key in season_keys[self.duration]:
+                                season_keys[self.duration].remove(key)
+                                save_keys()
+                                print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
+                            else:
+                                print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
+                            video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
 
-    product_embed = discord.Embed(
-        title="🎮 รายละเอียดสินค้า",
-        description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                    "**DNS กันดำ ☣️**\n"
-                    "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                    "**ตัวเกม 🎮**\n"
-                    "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
-                    f"**คีย์ใช้งาน ({self.duration})**\n"
-                    f"```\n{key}\n```",  # คีย์แสดงในรูปแบบที่สามารถคัดลอกได้
-        color=discord.Color.gold())
-    
-    # ส่งวิดีโอสำหรับ Season
-    dm_channel = await interaction.user.create_dm()
-    await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
-    await dm_channel.send(embed=product_embed)
-    
-    # เพิ่มปุ่มคัดลอกคีย์
-    key_view = KeyView(key)
-    await dm_channel.send("กดปุ่มด้านล่างเพื่อคัดลอกคีย์:", view=key_view)
+                            product_embed = discord.Embed(
+                                title="🎮 รายละเอียดสินค้า",
+                                description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
+                                    "**DNS กันดำ ☣️**\n"
+                                    "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
+                                    "**ตัวเกม 🎮**\n"
+                                    "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
+                                    f"**คีย์ใช้งาน ({self.duration})**\n"
+                                    f"```\n{key}\n```",
+                                color=discord.Color.gold())
+                            # Send to DM
+                            dm_channel = await interaction.user.create_dm()
+                            await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
+                            await dm_channel.send(embed=product_embed)
+                            key_message = f"```\n{key}\n```"
+                            await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
+                            await dm_channel.send(key_message)
+
                         # Send success message in channel
                         success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
                         #await interaction.edit_original_response(content="✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!")
@@ -522,10 +503,10 @@ async def on_ready():
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
-        
+
         # Add persistent view
         bot.add_view(PersistentView())
-        
+
         # Restore views in active channels
         for guild in bot.guilds:
             for channel in guild.channels:
@@ -539,7 +520,7 @@ async def on_ready():
                                 break
                     except discord.HTTPException:
                         continue
-                        
+
     except Exception as e:
         print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
 
@@ -629,7 +610,7 @@ async def post_messages():
             description=(
                 "# 🌟 Premium Features\n"
                 "> 🛡️ ระบบป้องกันการแบน\n"
-                "> 📲 ติดตั้งง่าย ใช้งานสะดวก\n"
+                "> 📲 ติดตั้งง่าย ใช้งานสะดวก"
                 "> ⚡ อัพเดทสม่ำเสมอ\n"
                 "> 🔰 ทีมงานดูแล 24/7\n\n"
                 "# 💎 ราคาแพ็คเกจรายซีซั่น\n"
@@ -664,7 +645,7 @@ async def notify_new_key(type: str, duration: str, key: str):
         )
         await notification_channel.send(embed=embed)
 
-@bot.tree.command(name="add", description="เพิ่มคีย์ (Admin only)")
+@bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
     app_commands.Choice(name="Season", value="season")
@@ -677,28 +658,21 @@ async def notify_new_key(type: str, duration: str, key: str):
     app_commands.Choice(name="1 ซีซั่น", value="1 ซีซั่น"),
     app_commands.Choice(name="3 ซีซั่น", value="3 ซีซั่น")
 ])
-async def add_keys(interaction: discord.Interaction, type: str, duration: str, keys: str):
-    # ตรวจสอบสิทธิ์ Admin
+async def add_key(interaction: discord.Interaction, type: str, duration: str, key: str):
     if not any(role.name == "Admin" for role in interaction.user.roles):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
-    # แยกคีย์ที่กรอกโดยใช้เครื่องหมาย ',' เป็นตัวแบ่ง
-    key_list = [k.strip() for k in keys.strip().split(',') if k.strip()]
-
-    # เพิ่มคีย์ใน daily_keys หรือ season_keys
     if type == "day" and duration in daily_keys:
-        daily_keys[duration].extend(key_list)
+        daily_keys[duration].append(key)
         save_daily_keys()
-        await notify_new_key("day", duration, ", ".join(key_list))
-        await interaction.response.send_message(f"✅ เพิ่ม {len(key_list)} คีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
-
+        await notify_new_key("day", duration, key)
+        await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
     elif type == "season" and duration in season_keys:
-        season_keys[duration].extend(key_list)
+        season_keys[duration].append(key)
         save_keys()
-        await notify_new_key("season", duration, ", ".join(key_list))
-        await interaction.response.send_message(f"✅ เพิ่ม {len(key_list)} คีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
-
+        await notify_new_key("season", duration, key)
+        await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
     else:
         await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
