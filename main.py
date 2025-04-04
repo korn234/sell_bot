@@ -623,7 +623,7 @@ async def notify_new_key(type: str, duration: str, key: str):
         )
         await notification_channel.send(embed=embed)
 
-@bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
+@bot.tree.command(name="add", description="เพิ่มคีย์ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
     app_commands.Choice(name="Season", value="season")
@@ -636,21 +636,26 @@ async def notify_new_key(type: str, duration: str, key: str):
     app_commands.Choice(name="1 ซีซั่น", value="1 ซีซั่น"),
     app_commands.Choice(name="3 ซีซั่น", value="3 ซีซั่น")
 ])
-async def add_key(interaction: discord.Interaction, type: str, duration: str, key: str):
+async def add_keys(interaction: discord.Interaction, type: str, duration: str, keys: str):
     if not any(role.name == "Admin" for role in interaction.user.roles):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
+    # แยกคีย์ตามบรรทัด
+    key_list = [k.strip() for k in keys.strip().splitlines() if k.strip()]
+
     if type == "day" and duration in daily_keys:
-        daily_keys[duration].append(key)
+        daily_keys[duration].extend(key_list)
         save_daily_keys()
-        await notify_new_key("day", duration, key)
-        await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
+        await notify_new_key("day", duration, ", ".join(key_list))
+        await interaction.response.send_message(f"✅ เพิ่ม {len(key_list)} คีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
+
     elif type == "season" and duration in season_keys:
-        season_keys[duration].append(key)
+        season_keys[duration].extend(key_list)
         save_keys()
-        await notify_new_key("season", duration, key)
-        await interaction.response.send_message(f"✅ เพิ่มคีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
+        await notify_new_key("season", duration, ", ".join(key_list))
+        await interaction.response.send_message(f"✅ เพิ่ม {len(key_list)} คีย์สำหรับ {duration} เรียบร้อยแล้ว", ephemeral=True)
+
     else:
         await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
