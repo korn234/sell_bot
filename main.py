@@ -540,7 +540,7 @@ async def post_messages():
         await season_channel.send(embed=embed2, view=SeasonView())
 
 # Task ลบข้อความและโพสต์ใหม่ทุก 3 นาที
-@tasks.loop(minutes=3)
+@tasks.loop(minutes=10)
 async def clear_and_post():
     await clear_channels()
     await post_messages()
