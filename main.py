@@ -245,7 +245,6 @@ class DailyPriceDropdown(Select):
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
-# ปุ่มสำหรับติดต่อแอดมิน
 class AdminContactButton(discord.ui.Button):
     def __init__(self):
         super().__init__(label="👨‍💼 ติดต่อแอดมิน", style=discord.ButtonStyle.primary)
@@ -269,6 +268,11 @@ class AdminContactButton(discord.ui.Button):
             description="ยินดีต้อนรับ! หากคุณมีคำถามหรือปัญหาทางระบบ กรุณาส่งข้อความมาที่นี่",
             color=discord.Color.blue())
         await channel.send(embed=embed)
+
+        # เพิ่มปุ่ม "ปิดช่องแชท"
+        close_button = CloseButton()
+        await channel.send("🔒 หากต้องการปิดแชทนี้ กรุณากดปุ่มด้านล่าง", view=View().add_item(close_button))
+
         await interaction.response.send_message(f"📬 สร้างช่องแชทส่วนตัวเรียบร้อยแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
 
 class SeasonView(View):
