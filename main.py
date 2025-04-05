@@ -20,14 +20,12 @@ intents.guilds = True
 intents.members = True  # เพิ่ม intents สำหรับการจัดการสมาชิก
 bot = commands.Bot(command_prefix="!", intents=intents)
 # จับคู่ QR และเบอร์โทร 1:1
-SEASON_PAYMENT_PAIRS = {
-    "https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png":
-    "080-781-8346",
-    "https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg":
-    "095-746-4287",
-    "https://media.discordapp.net/attachments/1357575468764762202/1357575512066625669/IMG_0230.jpg":
-    "094-338-9674"
-}
+# Format: (QR URL, Phone number, probability weight)
+SEASON_PAYMENT_OPTIONS = [
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 90),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 5),
+    ("https://media.discordapp.net/attachments/1357575468764762202/1357575512066625669/IMG_0230.jpg", "094-338-9674", 5)
+]
 
 DAILY_PAYMENT_PAIRS = {
     "https://media.discordapp.net/attachments/1357027765794373642/1357323518127247501/New_Project_404_7B9F1CE.png?ex=67efc988&is=67ee7808&hm=c53f3c099338c8d36487fbbd075e3fdb674a3323b33c04e523be36e67fa9cce9&=&format=webp&quality=lossless&width=791&height=989": "097-206-0458"
@@ -169,8 +167,14 @@ class ConfirmView(View):
             qr_url = random.choice(list(DAILY_PAYMENT_PAIRS.keys()))
             phone = DAILY_PAYMENT_PAIRS[qr_url]
         else:  # ราคาแบบรายซีซั่น
-            qr_url = random.choice(list(SEASON_PAYMENT_PAIRS.keys()))
-            phone = SEASON_PAYMENT_PAIRS[qr_url]
+            total_weight = sum(weight for _, _, weight in SEASON_PAYMENT_OPTIONS)
+            r = random.uniform(0, total_weight)
+            for qr, ph, weight in SEASON_PAYMENT_OPTIONS:
+                r -= weight
+                if r <= 0:
+                    qr_url = qr
+                    phone = ph
+                    break
 
         embed = discord.Embed(
             title="📋 รายละเอียดการสั่งซื้อ",
@@ -233,7 +237,9 @@ class ConfirmView(View):
                             await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
                             return
 
-                        if self.price in [99, 190, 300, 799]:  
+
+                        # ---------- โค้ดส่งคีย์หลัก ----------
+                        if self.price in [99, 190, 300, 799]:
                             # Daily prices
                             if key in daily_keys[self.duration]:
                                 daily_keys[self.duration].remove(key)
@@ -241,20 +247,24 @@ class ConfirmView(View):
                                 print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
+
                             video_url_1 = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
                             video_url_2 = "https://cdn.discordapp.com/attachments/1357308234137866370/1357763650227535883/videoplayback.mp4?ex=67f16370&is=67f011f0&hm=105a9ded6c87d346fd5daad3d1004b891738dc5537d4101ab8465ab6e710fd56&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                                    "**กลุ่มอัพเดทข่าวสารโปร**\n"
-                                    "https://t.me/savageios\n\n"
-                                    "**ตัวเกม 🎮**\n"
-                                    "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
-                                    f"**คีย์ใช้งาน ({self.duration})**\n"
-                                    f"```\n{key}\n```",
-                                color=discord.Color.gold())
-                            # ✅ ถาวร = ส่งลิงก์กลุ่ม Telegram
+                                            "**DNS กันดำ ☣️**\n"
+                                            "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
+                                            "**กลุ่มอัพเดทข่าวสารโปร**\n"
+                                            "https://t.me/savageios\n\n"
+                                            "**ตัวเกม 🎮**\n"
+                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
+                                            f"**คีย์ใช้งาน ({self.duration})**\n"
+                                            f"```\n{key}\n```",
+                                color=discord.Color.gold()
+                            )
+
                             if self.duration == "ถาวร":
                                 try:
                                     dm_channel = await interaction.user.create_dm()
@@ -263,13 +273,13 @@ class ConfirmView(View):
                                     )
                                 except Exception as e:
                                     print(f"❌ ไม่สามารถส่ง DM กลุ่มถาวรได้: {e}")
+
                             dm_channel = await interaction.user.create_dm()
                             await dm_channel.send(f"🎥 วิดีโอสอนโหลด: {video_url_1}")
                             await dm_channel.send(f"🎥 วิดีโอสอนเข้าเกม: {video_url_2}")
                             await dm_channel.send(embed=product_embed)
-                            key_message = f"```\n{key}\n```"
                             await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
-                            await dm_channel.send(key_message)
+                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView())
 
                         else:
                             # Season prices
@@ -279,26 +289,26 @@ class ConfirmView(View):
                                 print(f"✅ ลบคีย์ {key} สำหรับ {self.duration} เรียบร้อยแล้ว")
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
+
                             video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
-                                    "**DNS กันดำ ☣️**\n"
-                                    "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                                    "**ตัวเกม 🎮**\n"
-                                    "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
-                                    f"**คีย์ใช้งาน ({self.duration})**\n"
-                                    f"```\n{key}\n```",
-                                color=discord.Color.gold())
-                            # Send to DM
+                                            "**DNS กันดำ ☣️**\n"
+                                            "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
+                                            "**ตัวเกม 🎮**\n"
+                                            "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
+                                            f"**คีย์ใช้งาน ({self.duration})**\n"
+                                            f"```\n{key}\n```",
+                                color=discord.Color.gold()
+                            )
+
                             dm_channel = await interaction.user.create_dm()
                             await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
                             await dm_channel.send(embed=product_embed)
-                            key_message = f"```\n{key}\n```"
                             await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
-                            await dm_channel.send(key_message)
-
+                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView())
                         # Send success message in channel
                         success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
                         #await interaction.edit_original_response(content="✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!")
@@ -347,6 +357,27 @@ class ConfirmView(View):
         confirm_view.add_item(CloseButton())
         await channel.send(embed=embed, view=confirm_view)
 
+        # ปุ่มช่วยเหลือ (ส่งวิดีโอ + ลิงก์)
+        class HelpButton(Button):
+            def __init__(self):
+                super().__init__(label="🛠️ มีปัญหาการติดตั้ง? กดที่นี่", style=discord.ButtonStyle.danger)
+
+            async def callback(self, interaction: discord.Interaction):
+                try:
+                    await interaction.response.defer(ephemeral=True)
+                    dm_channel = await interaction.user.create_dm()
+
+                    await dm_channel.send("🌐 ลิงก์ช่วยเหลือ:\nhttps://khoindvn.io.vn/")
+                    await dm_channel.send("🎥 วิดีโอสอนโหลดesign:\nhttps://cdn.discordapp.com/attachments/1346021932927287357/1357951897348345916/80A99DB8-A7BC-4A0D-83B5-12D194B13AFC.mov?ex=67f212c1&is=67f0c141&hm=259c056dd7f5bb210de763d69d59a5c3e35340ac9f9a40d3784569a27104cebf&")
+                    await dm_channel.send("🎥 วิดีโอใส่cert+hack:\nhttps://cdn.discordapp.com/attachments/1346311435575234630/1357949291913543731/42CF403A-6293-4BDA-81A6-64C496D380AF.mov?ex=67f21054&is=67f0bed4&hm=eced7ba6f4da7e7ca288f5cf5f4f3ccc46c81f1d92470c15017e713893730037&")
+                except Exception as e:
+                    print(f"❌ ไม่สามารถส่งข้อมูลช่วยเหลือได้: {e}")
+
+        class HelpButtonView(View):
+            def __init__(self):
+                super().__init__(timeout=None)
+                self.add_item(HelpButton())
+    
         # Send payment instruction message
         payment_instruction = discord.Embed(
             title="💳 แจ้งชำระเงิน",
