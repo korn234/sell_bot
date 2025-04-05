@@ -599,9 +599,9 @@ async def post_messages():
                           "```css\n"
                           "• ROV iOS (รายซีซั่น/ถาวร)  🟢\n"
                           "• ROV iOS (รายวัน/รายซีซั่น) 🟡\n"
-                          "• ROV Android            🟢\n"
-                          "• Free Fire              🟢\n"
-                          "• 8 Ball Pool            🟢\n"
+                          "• ROV Android           🟢\n"
+                          "• Free Fire             🟢\n"
+                          "• 8 Ball Pool           🟢\n"
                           "```")
         await status_channel.send(status_message)
 
