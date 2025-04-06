@@ -68,19 +68,33 @@ def save_daily_keys():
 season_keys = load_keys()
 daily_keys = load_daily_keys()
 
-def get_next_key(duration):
+def get_next_key(duration, type=None):
     keys = None
-    if duration in daily_keys and daily_keys[duration]:
-        keys = daily_keys[duration]
-    elif duration in season_keys and season_keys[duration]:
-        keys = season_keys[duration]
+
+    if type == "daily":
+        if duration in daily_keys and daily_keys[duration]:
+            keys = daily_keys[duration]
+    elif type == "season":
+        if duration in season_keys and season_keys[duration]:
+            keys = season_keys[duration]
+    else:
+        # fallback แบบเดิม
+        if duration in daily_keys and daily_keys[duration]:
+            keys = daily_keys[duration]
+        elif duration in season_keys and season_keys[duration]:
+            keys = season_keys[duration]
 
     if keys and len(keys) > 0:
         if len(keys) <= 3:  # แจ้งเตือนเมื่อคีย์เหลือน้อย
             notification_channel = bot.get_channel(1357308234137866370)
             if notification_channel:
-                asyncio.create_task(notification_channel.send(f"⚠️ แจ้งเตือน: คีย์ {duration} เหลือน้อย ({len(keys)} คีย์)"))
+                asyncio.create_task(
+                    notification_channel.send(
+                        f"⚠️ แจ้งเตือน: คีย์ {duration} เหลือน้อย ({len(keys)} คีย์)"
+                    )
+                )
         return keys[0]  # ส่งคีย์แรกคืน แต่ยังไม่ลบ
+
     return None
 
 def remove_used_key(duration, key):
