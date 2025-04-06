@@ -760,14 +760,20 @@ async def list_keys(interaction: discord.Interaction, type: str, duration: str):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
+    await interaction.response.defer(ephemeral=True)  # ✅ ป้องกัน interaction หมดเวลา
+
     if type == "day" and duration in daily_keys:
         keys = daily_keys[duration]
-        await interaction.response.send_message(f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```", ephemeral=True)
+        msg = f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```"
+        await interaction.followup.send(msg, ephemeral=True)
+
     elif type == "season" and duration in season_keys:
         keys = season_keys[duration]
-        await interaction.response.send_message(f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```", ephemeral=True)
+        msg = f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```"
+        await interaction.followup.send(msg, ephemeral=True)
+
     else:
-        await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
+        await interaction.followup.send("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
 @bot.command(name="announce")
 @commands.has_role("Admin")
