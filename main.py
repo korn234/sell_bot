@@ -5,8 +5,42 @@ import os
 from discord.ext import commands, tasks
 from discord import app_commands
 from discord.ui import Button, View, Select
+from dotenv import load_dotenv
 import threading
 import asyncio
+
+# โหลดค่าในไฟล์ .env
+load_dotenv()
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+
+def create_gist(content):
+    url = "https://api.github.com/gists"
+    payload = {
+        "description": "Key for Syneyz",
+        "public": False,
+        "files": {
+            "key.txt": {
+                "content": content
+            }
+        }
+    }
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code == 201:
+            return response.json()["html_url"]
+        else:
+            print(f"❌ สร้าง Gist ไม่สำเร็จ: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"❌ เกิดข้อผิดพลาดในการสร้าง Gist: {e}")
+        return None
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 SEASON_CHANNEL_ID = 1304398097421434930  # ช่องซีซั่น
@@ -251,11 +285,13 @@ class ConfirmView(View):
                             await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
                             return
 
-                        # ดึงคีย์ให้ตรงประเภท
                         if self.price in [99, 190, 300, 799]:
+                            # ใช้ daily_keys
                             key = get_next_key(self.duration, type="daily")
                         else:
+                            # ใช้ season_keys
                             key = get_next_key(self.duration, type="season")
+
                         # ---------- โค้ดส่งคีย์หลัก ----------
                         if self.price in [99, 190, 300, 799]:
                             # Daily prices
@@ -273,11 +309,11 @@ class ConfirmView(View):
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
                                             "**DNS กันดำ ☣️**\n"
-                                            "https://wsfteam.xyz/configprofiles\n\n"
+                                            "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/15781"
+                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -297,7 +333,7 @@ class ConfirmView(View):
                             await dm_channel.send(f"🎥 วิดีโอสอนเข้าเกม: {video_url_2}")
                             await dm_channel.send(embed=product_embed)
                             await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
-                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView())
+                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView(key))
 
                         else:
                             # Season prices
@@ -326,7 +362,7 @@ class ConfirmView(View):
                             await dm_channel.send(f"🎥 วิดีโอตัวอย่าง: {video_url}")
                             await dm_channel.send(embed=product_embed)
                             await dm_channel.send("🔑 **คีย์ของคุณ:** (กดค้างคัดลอกลบ''')")
-                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView())
+                            await dm_channel.send(content=f"```\n{key}\n```", view=HelpButtonView(key))
                         # Send success message in channel
                         success_msg = await self.view.update_status(interaction, "✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!", discord.Color.green())
                         #await interaction.edit_original_response(content="✅ ส่งข้อมูลสินค้าและวิดีโอให้คุณทาง DM แล้ว!")
@@ -375,7 +411,30 @@ class ConfirmView(View):
         confirm_view.add_item(CloseButton())
         await channel.send(embed=embed, view=confirm_view)
 
-        # ปุ่มช่วยเหลือ (ส่งวิดีโอ + ลิงก์)
+        class CopyKeyButton(Button):
+            def __init__(self, key):
+                super().__init__(label="🔑 คัดลอกคีย์", style=discord.ButtonStyle.primary)
+                self.key = key
+
+            async def callback(self, interaction: discord.Interaction):
+                try:
+                    # เรียกฟังก์ชันสร้าง Gist โดยใช้คีย์
+                    gist_url = create_gist(self.key)
+
+                    if gist_url:
+                        await interaction.response.send_message(
+                            f"🔑 คุณสามารถคัดลอกคีย์ของคุณได้จากที่นี่:\n{gist_url}",
+                            ephemeral=True
+                        )
+                    else:
+                        await interaction.response.send_message(
+                            "❌ เกิดข้อผิดพลาดในการสร้างลิงก์คีย์.",
+                            ephemeral=True
+                        )
+                except Exception as e:
+                    print(f"❌ ไม่สามารถสร้างลิงก์ได้: {e}")
+                    await interaction.response.send_message("❌ มีบางอย่างผิดพลาด.", ephemeral=True)
+
         class HelpButton(Button):
             def __init__(self):
                 super().__init__(label="🛠️ มีปัญหาการติดตั้ง? กดที่นี่", style=discord.ButtonStyle.danger)
@@ -386,16 +445,17 @@ class ConfirmView(View):
                     dm_channel = await interaction.user.create_dm()
 
                     await dm_channel.send("🌐 ลิงก์ช่วยเหลือ:\nhttps://khoindvn.io.vn/")
-                    await dm_channel.send("🎥 วิดีโอสอนโหลดesign:\nhttps://cdn.discordapp.com/attachments/1346021932927287357/1357951897348345916/80A99DB8-A7BC-4A0D-83B5-12D194B13AFC.mov?ex=67f212c1&is=67f0c141&hm=259c056dd7f5bb210de763d69d59a5c3e35340ac9f9a40d3784569a27104cebf&")
-                    await dm_channel.send("🎥 วิดีโอใส่cert+hack:\nhttps://cdn.discordapp.com/attachments/1346311435575234630/1357949291913543731/42CF403A-6293-4BDA-81A6-64C496D380AF.mov?ex=67f21054&is=67f0bed4&hm=eced7ba6f4da7e7ca288f5cf5f4f3ccc46c81f1d92470c15017e713893730037&")
+                    await dm_channel.send("🎥 วิดีโอสอนโหลด:\nhttps://cdn.discordapp.com/attachments/1346021932927287357/1357951897348345916/80A99DB8-A7BC-4A0D-83B5-12D194B13AFC.mov")
+                    await dm_channel.send("🎥 วิดีโอใส่ cert + hack:\nhttps://cdn.discordapp.com/attachments/1346311435575234630/1357949291913543731/42CF403A-6293-4BDA-81A6-64C496D380AF.mov")
                 except Exception as e:
                     print(f"❌ ไม่สามารถส่งข้อมูลช่วยเหลือได้: {e}")
 
         class HelpButtonView(View):
-            def __init__(self):
+            def __init__(self, key):
                 super().__init__(timeout=None)
+                self.add_item(CopyKeyButton(key))
                 self.add_item(HelpButton())
-    
+
         # Send payment instruction message
         payment_instruction = discord.Embed(
             title="💳 แจ้งชำระเงิน",
@@ -615,8 +675,8 @@ async def post_messages():
                           "```\n"
                           "**📱 สถานะเกม**\n"
                           "```css\n"
-                          "• ROV iOS รายซีซั่น        🟢\n"
-                          "• ROV iOS รายวัน          🟡\n"
+                          "• ROV iOS (รายซีซั่น/ถาวร)  🟡\n"
+                          "• ROV iOS (รายวัน/รายซีซั่น) 🟢\n"
                           "• ROV Android           🟢\n"
                           "• Free Fire             🟢\n"
                           "• 8 Ball Pool           🟢\n"
@@ -778,20 +838,14 @@ async def list_keys(interaction: discord.Interaction, type: str, duration: str):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
-    await interaction.response.defer(ephemeral=True)  # ✅ ป้องกัน interaction หมดเวลา
-
     if type == "day" and duration in daily_keys:
         keys = daily_keys[duration]
-        msg = f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```"
-        await interaction.followup.send(msg, ephemeral=True)
-
+        await interaction.response.send_message(f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```", ephemeral=True)
     elif type == "season" and duration in season_keys:
         keys = season_keys[duration]
-        msg = f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```"
-        await interaction.followup.send(msg, ephemeral=True)
-
+        await interaction.response.send_message(f"🔑 คีย์สำหรับ {duration}:\n```\n" + "\n".join(keys) + "\n```", ephemeral=True)
     else:
-        await interaction.followup.send("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
+        await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
 @bot.command(name="announce")
 @commands.has_role("Admin")
