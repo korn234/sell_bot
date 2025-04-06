@@ -309,11 +309,11 @@ class ConfirmView(View):
                                 title="🎮 รายละเอียดสินค้า",
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
                                             "**DNS กันดำ ☣️**\n"
-                                            "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
+                                            "https://wsfteam.xyz/configprofiles\n\n"
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/2025\n\n"
+                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/15781\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -719,7 +719,7 @@ async def post_messages():
             description=(
                 "# 🌟 Premium Features\n"
                 "> 🛡️ ระบบป้องกันการแบน\n"
-                "> 📲 ติดตั้งง่าย ใช้งานสะดวก"
+                "> 📲 ติดตั้งง่าย ใช้งานสะดวก\n"
                 "> ⚡ อัพเดทสม่ำเสมอ\n"
                 "> 🔰 ทีมงานดูแล 24/7\n\n"
                 "# 💎 ราคาแพ็คเกจรายซีซั่น\n"
