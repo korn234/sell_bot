@@ -56,9 +56,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # จับคู่ QR และเบอร์โทร 1:1
 # Format: (QR URL, Phone number, probability weight)
 SEASON_PAYMENT_OPTIONS = [
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 90),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 5),
-    ("https://media.discordapp.net/attachments/1357575468764762202/1357575512066625669/IMG_0230.jpg", "094-338-9674", 5)
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 80),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 10),
+    ("https://media.discordapp.net/attachments/1357575468764762202/1357575512066625669/IMG_0230.jpg", "094-338-9674", 10)
 ]
 
 DAILY_PAYMENT_PAIRS = {
