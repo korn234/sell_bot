@@ -313,7 +313,7 @@ class ConfirmView(View):
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-ss2025/distribution_groups/15781\n\n"
+                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage-antireport/distribution_groups/2025\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
