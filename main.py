@@ -527,7 +527,7 @@ class DailyPriceDropdown(Select):
                                  description=f"ราคา 150 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="30 วัน",
-                                 description=f"ราคา 2500 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
+                                 description=f"ราคา 250 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="ถาวร",
                                  description=f"ราคา 699 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
@@ -543,7 +543,7 @@ class DailyPriceDropdown(Select):
             price = 69
             duration = "3 วัน"
         elif selection == "15 วัน":
-            price = 1500
+            price = 150
             duration = "15 วัน"
         elif selection == "30 วัน":
             price = 250
