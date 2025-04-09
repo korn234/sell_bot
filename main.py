@@ -211,7 +211,7 @@ class ConfirmView(View):
 
         # Send initial message in the new channel
         # สุ่ม QR code และได้เบอร์วอเลทที่ตรงกัน ตามประเภทการซื้อ
-        if self.duration in ["3 วัน", "15 วัน", "30 วัน", "ถาวร"] and self.price in [99, 190, 300, 799]:  # ราคาแบบรายวัน
+        if self.duration in ["3 วัน", "15 วัน", "30 วัน", "ถาวร"] and self.price in [69, 150, 250, 699]:  # ราคาแบบรายวัน
             qr_url = random.choice(list(DAILY_PAYMENT_PAIRS.keys()))
             phone = DAILY_PAYMENT_PAIRS[qr_url]
         else:  # ราคาแบบรายซีซั่น
@@ -285,7 +285,7 @@ class ConfirmView(View):
                             await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
                             return
 
-                        if self.price in [99, 190, 300, 799]:
+                        if self.price in [69, 150, 250, 699]:
                             # ใช้ daily_keys
                             key = get_next_key(self.duration, type="daily")
                         else:
@@ -293,7 +293,7 @@ class ConfirmView(View):
                             key = get_next_key(self.duration, type="season")
 
                         # ---------- โค้ดส่งคีย์หลัก ----------
-                        if self.price in [99, 190, 300, 799]:
+                        if self.price in [69, 150, 250, 699]:
                             # Daily prices
                             if key in daily_keys[self.duration]:
                                 daily_keys[self.duration].remove(key)
@@ -540,16 +540,16 @@ class DailyPriceDropdown(Select):
     async def callback(self, interaction: discord.Interaction):
         selection = self.values[0]
         if selection == "3 วัน":
-            price = 99
+            price = 69
             duration = "3 วัน"
         elif selection == "15 วัน":
-            price = 190
+            price = 1500
             duration = "15 วัน"
         elif selection == "30 วัน":
-            price = 300
+            price = 250
             duration = "30 วัน"
         else:
-            price = 799
+            price = 699
             duration = "ถาวร"
 
         embed = discord.Embed(
@@ -690,7 +690,7 @@ async def post_messages():
             title="⚔️ ROV iOS PREMIUM SERVICES ⚔️",
             description=(
                 "# 🌟 Premium Features\n"
-                "> 🎯 ไม่ต้องปัดเกมตอนจบ\n"
+                "> 💦 ต้อนรับหน้าร้อนด้วยโปรสุดพิเศษ\n"
                 "> 🛡️ ปลอดภัย 100%\n"
                 "> 📲 ติดตั้งง่าย ใช้งานสะดวก\n"
                 "> ⚡ อัพเดทสม่ำเสมอ\n"
@@ -698,13 +698,13 @@ async def post_messages():
                 "# 💎 ราคาแพ็คเกจรายวัน\n"
                 "```md\n"
                 "# 3 วัน\n"
-                "* ราคา 99 บาท\n\n"
+                "* ราคา 69 บาท\n\n"
                 "# 15 วัน\n"
-                "* ราคา 190 บาท\n\n"
+                "* ราคา 150 บาท\n\n"
                 "# 30 วัน\n"
-                "* ราคา 300 บาท\n\n"
+                "* ราคา 250 บาท\n\n"
                 "# แบบถาวร\n"
-                "* ราคา 799 บาท\n"
+                "* ราคา 699 บาท\n"
                 "```"
             ),
             color=0x2ecc71
