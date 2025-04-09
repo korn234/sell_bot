@@ -677,7 +677,7 @@ async def post_messages():
                           "**📱 สถานะเกม**\n"
                           "```css\n"
                           "• ROV iOS รายซีซั่น        🟡\n"
-                          "• ROV iOS รายวัน          🟢\n"
+                          "• ROV iOS รายวัน          🟡\n"
                           "• ROV Android           🟢\n"
                           "• Free Fire             🟢\n"
                           "• 8 Ball Pool           🟢\n"
