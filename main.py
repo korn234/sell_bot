@@ -521,16 +521,16 @@ class DailyPriceDropdown(Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="3 วัน",
-                                 description=f"ราคา 99 บาท | เหลือ {len(daily_keys['3 วัน'])} คีย์",
+                                 description=f"ราคา 69 บาท | เหลือ {len(daily_keys['3 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="15 วัน",
-                                 description=f"ราคา 190 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
+                                 description=f"ราคา 150 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="30 วัน",
-                                 description=f"ราคา 300 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
+                                 description=f"ราคา 2500 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="ถาวร",
-                                 description=f"ราคา 799 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
+                                 description=f"ราคา 699 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
                                  emoji="🔥"),
         ]
         super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
