@@ -352,7 +352,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/rovvipxcheat/apps/rov-fullfuntion/distribution_groups/rov\n\n"
+                                            "https://install.appcenter.ms/users/potter41123/apps/rov-vip/distribution_groups/vip\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
