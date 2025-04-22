@@ -211,7 +211,7 @@ class ConfirmView(View):
 
         # Send initial message in the new channel
         # สุ่ม QR code และได้เบอร์วอเลทที่ตรงกัน ตามประเภทการซื้อ
-        if self.duration in ["3 วัน", "15 วัน", "30 วัน", "ถาวร"] and self.price in [69, 150, 250, 699]:  # ราคาแบบรายวัน
+        if self.duration in ["3 วัน", "15 วัน", "30 วัน", "ถาวร"] and self.price in [99, 190, 300, 799]:  # ราคาแบบรายวัน
             qr_url = random.choice(list(DAILY_PAYMENT_PAIRS.keys()))
             phone = DAILY_PAYMENT_PAIRS[qr_url]
         else:  # ราคาแบบรายซีซั่น
@@ -285,7 +285,7 @@ class ConfirmView(View):
                             await interaction.followup.send("❌ ขออภัย ไม่มีคีย์เหลือในระบบ กรุณาติดต่อแอดมิน", ephemeral=True)
                             return
 
-                        if self.price in [69, 150, 250, 699]:
+                        if self.price in [99, 190, 300, 799]:
                             # ใช้ daily_keys
                             key = get_next_key(self.duration, type="daily")
                         else:
@@ -293,7 +293,7 @@ class ConfirmView(View):
                             key = get_next_key(self.duration, type="season")
 
                         # ---------- โค้ดส่งคีย์หลัก ----------
-                        if self.price in [69, 150, 250, 699]:
+                        if self.price in [99, 190, 300, 799]:
                             # Daily prices
                             if key in daily_keys[self.duration]:
                                 daily_keys[self.duration].remove(key)
@@ -520,16 +520,16 @@ class DailyPriceDropdown(Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="3 วัน",
-                                 description=f"ราคา 69 บาท | เหลือ {len(daily_keys['3 วัน'])} คีย์",
+                                 description=f"ราคา 99 บาท | เหลือ {len(daily_keys['3 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="15 วัน",
-                                 description=f"ราคา 150 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
+                                 description=f"ราคา 190 บาท | เหลือ {len(daily_keys['15 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="30 วัน",
-                                 description=f"ราคา 250 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
+                                 description=f"ราคา 300 บาท | เหลือ {len(daily_keys['30 วัน'])} คีย์",
                                  emoji="💰"),
             discord.SelectOption(label="ถาวร",
-                                 description=f"ราคา 699 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
+                                 description=f"ราคา 799 บาท | เหลือ {len(daily_keys['ถาวร'])} คีย์",
                                  emoji="🔥"),
         ]
         super().__init__(placeholder="💵 เลือกราคาที่ต้องการ...",
@@ -539,16 +539,16 @@ class DailyPriceDropdown(Select):
     async def callback(self, interaction: discord.Interaction):
         selection = self.values[0]
         if selection == "3 วัน":
-            price = 69
+            price = 99
             duration = "3 วัน"
         elif selection == "15 วัน":
-            price = 150
+            price = 190
             duration = "15 วัน"
         elif selection == "30 วัน":
-            price = 250
+            price = 300
             duration = "30 วัน"
         else:
-            price = 699
+            price = 799
             duration = "ถาวร"
 
         embed = discord.Embed(
@@ -697,13 +697,13 @@ async def post_messages():
                 "# 💎 ราคาแพ็คเกจรายวัน\n"
                 "```md\n"
                 "# 3 วัน\n"
-                "* ราคา 69 บาท\n\n"
+                "* ราคา 99 บาท\n\n"
                 "# 15 วัน\n"
-                "* ราคา 150 บาท\n\n"
+                "* ราคา 190 บาท\n\n"
                 "# 30 วัน\n"
-                "* ราคา 250 บาท\n\n"
+                "* ราคา 300 บาท\n\n"
                 "# แบบถาวร\n"
-                "* ราคา 699 บาท\n"
+                "* ราคา 799 บาท\n"
                 "```"
             ),
             color=0x2ecc71
