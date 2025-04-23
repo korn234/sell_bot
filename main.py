@@ -352,7 +352,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/potter41123/apps/rov-vip/distribution_groups/vip\n\n"
+                                            "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -675,8 +675,8 @@ async def post_messages():
                           "```\n"
                           "**📱 สถานะเกม**\n"
                           "```css\n"
-                          "• ROV iOS รายซีซั่น (12/04/68)   🟡\n"
-                          "• ROV iOS รายวัน (10/04/68)     🟢\n"
+                          "• ROV iOS รายซีซั่น (23/04/68)   🟢\n"
+                          "• ROV iOS รายวัน (10/04/68)     🟡\n"
                           "• ROV Android                  🔴\n"
                           "• Free Fire                    🟢\n"
                           "• 8 Ball Pool (เจล)            🟢\n"
