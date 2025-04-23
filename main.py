@@ -607,7 +607,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov\n\n คีย์ DoDEE\nFullNew"  # Replace this with the actual game link
+            game_link = "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov\n\n คีย์\nDoDEE\nFullNew"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
@@ -631,7 +631,6 @@ class DailyView(View):
         super().__init__()
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
-        self.add_item(GetGameButton())  # Add the new button here
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
