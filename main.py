@@ -593,19 +593,45 @@ class AdminContactButton(discord.ui.Button):
         await channel.send(embed=embed, view=view)
         await interaction.response.send_message(f"✅ สร้างช่องสำหรับติดต่อแอดมินแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
 
+class GetGameButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="🎮 กดเพื่อรับตัวเกม", style=discord.ButtonStyle.success)
+
+    async def callback(self, interaction: discord.Interaction):
+        # Define the required role IDs
+        required_role_ids = [1364253774977175652, 1337637128410103882]  # Replace with actual role IDs
+        
+        # Check if the user has at least one of the required roles
+        user_roles = [role.id for role in interaction.user.roles]
+        has_required_role = any(role_id in user_roles for role_id in required_role_ids)
+
+        if has_required_role:
+            # Send the game link if the user has the correct role
+            game_link = "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov\n\n คีย์ DoDEE\nFullNew"  # Replace this with the actual game link
+            await interaction.response.send_message(
+                f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
+                ephemeral=True
+            )
+        else:
+            # Send a failure message if the user does not have the correct role
+            await interaction.response.send_message(
+                "❌ คุณไม่มีสิทธิ์ในการรับตัวเกมนี้ กรุณาติดต่อแอดมิน",
+                ephemeral=True
+            )
+
 class SeasonView(View):
     def __init__(self):
         super().__init__()
         self.add_item(SeasonPriceDropdown())
         self.add_item(AdminContactButton())
+        self.add_item(GetGameButton())  # Add the new button here
 
 class DailyView(View):
     def __init__(self):
         super().__init__()
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
-
-
+        self.add_item(GetGameButton())  # Add the new button here
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
