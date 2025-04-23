@@ -313,7 +313,7 @@ class ConfirmView(View):
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/nexus2004x-gmail.com/apps/savage219satuek/distribution_groups/219\n\n"
+                                            "https://install.appcenter.ms/users/savageios219-gmail.com/apps/savage168/distribution_groups/2025\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -701,7 +701,7 @@ async def post_messages():
                           "**📱 สถานะเกม**\n"
                           "```css\n"
                           "• ROV iOS รายซีซั่น (23/04/68)   🟢\n"
-                          "• ROV iOS รายวัน (10/04/68)     🟡\n"
+                          "• ROV iOS รายวัน (23/04/68)     🟢\n"
                           "• ROV Android                  🔴\n"
                           "• Free Fire                    🟢\n"
                           "• 8 Ball Pool (เจล)            🟢\n"
