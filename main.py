@@ -264,11 +264,11 @@ class ConfirmView(View):
 
                     # Assign roles based on purchase amount
                     if self.price in [150, 300]:
-                        role = interaction.guild.get_role(1301486981641015416)
+                        role = interaction.guild.get_role(1364253774977175652)
                         if role:
                             await interaction.user.add_roles(role)
                     elif self.price == 400:
-                        role1 = interaction.guild.get_role(1301486981641015416)
+                        role1 = interaction.guild.get_role(1364253774977175652)
                         role2 = interaction.guild.get_role(1337637128410103882)
                         if role1 and role2:
                             await interaction.user.add_roles(role1, role2)
@@ -886,7 +886,9 @@ async def on_message(message):
         "วิธีติดตั้ง": "📱 วิธีติดตั้ง:\n1. ติดตั้ง DNS\n2. ติดตั้งแอพ\n3. ใส่คีย์ที่ได้รับ",
         "ช่องทางชำระเงิน": "💳 ช่องทางชำระเงิน:\n- True Wallet\n- โอนผ่านธนาคาร",
         "ติดต่อแอดมิน": "👨‍💼 กดปุ่ม 'ติดต่อแอดมิน' ในช่องสั่งซื้อได้เลยครับ",
-        "ไฟล์": "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov\n\nคีย์\n DoDEE\n FullNew"
+        "ไฟล์": "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov",
+        "ไฟล์": "DoDEE",
+        "ไฟล์": "FullNew"
     }
 
     for keyword, response in faq.items():
