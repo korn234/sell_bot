@@ -814,6 +814,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         winner_id = random.choice(participants)
         await interaction.followup.send(f"🎉 Congratulations <@{winner_id}>! You won the **{name} Giveaway**!")
     else:
+        await interaction.followup.send(f"No one joined the **{name} Giveaway**. Better luck next time!")
 
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
