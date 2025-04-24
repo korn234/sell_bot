@@ -839,39 +839,15 @@ giveaway_data = load_giveaway_data()
 async def giveaway(interaction: Interaction, name: str, duration: int):
     participants = []
     end_time = datetime.now(pytz.utc) + timedelta(seconds=duration)
-
-    # แปลงเวลาสิ้นสุดเป็นเวลาของไทย
     thai_tz = pytz.timezone("Asia/Bangkok")
     end_time_thai = end_time.astimezone(thai_tz)
 
-    # บันทึกข้อมูลการแจกของรางวัล
     giveaway_data["name"] = name
     giveaway_data["end_time"] = end_time.isoformat()
     giveaway_data["participants"] = participants
     save_giveaway_data(giveaway_data)
 
-    # Create the "Join Giveaway" button
-    class JoinButton(Button):
-        def __init__(self):
-            super().__init__(label="Join Giveaway", style=ButtonStyle.green, custom_id="join_giveaway_button")
-
-        async def callback(self, button_interaction: Interaction):
-            if button_interaction.user.id not in participants:
-                participants.append(button_interaction.user.id)
-                giveaway_data["participants"] = participants
-                save_giveaway_data(giveaway_data)
-                await button_interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
-            else:
-                await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
-
-    # Create a persistent view for the button
-    class GiveawayView(View):
-        def __init__(self):
-            super().__init__(timeout=None)
-            self.add_item(JoinButton())
-
-    # Send the initial giveaway message
-    view = GiveawayView()
+    view = GiveawayView(participants, giveaway_data)
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
@@ -880,6 +856,27 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         ),
         view=view
     )
+    # Create the "Join Giveaway" button
+class JoinButton(Button):
+    def __init__(self, participants, giveaway_data):
+        super().__init__(label="Join Giveaway", style=ButtonStyle.green, custom_id="join_giveaway_button")
+        self.participants = participants
+        self.giveaway_data = giveaway_data
+
+    async def callback(self, button_interaction: Interaction):
+        if button_interaction.user.id not in self.participants:
+            self.participants.append(button_interaction.user.id)
+            self.giveaway_data["participants"] = self.participants
+            save_giveaway_data(self.giveaway_data)
+            await button_interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
+        else:
+            await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
+
+
+class GiveawayView(View):
+    def __init__(self, participants, giveaway_data):
+        super().__init__(timeout=None)
+        self.add_item(JoinButton(participants, giveaway_data))
 
     # Register the persistent view
     bot.add_view(view)
@@ -922,8 +919,8 @@ async def check_giveaway_winner():
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    bot.add_view(GiveawayView())  # เพิ่ม Persistent View
-    check_giveaway_winner.start()  # เริ่มต้น Task ตรวจสอบผู้ชนะ
+    bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
+    check_giveaway_winner.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
