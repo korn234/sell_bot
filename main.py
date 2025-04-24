@@ -845,7 +845,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
-            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {formatted_end_time} (ตามเวลาไทย)",
+            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {formatted_end_time}",
             color=0x00FF00,
         ),
         view=view
