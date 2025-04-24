@@ -964,7 +964,6 @@ async def on_ready():
     bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
     clear_and_post.start()
-    on_message.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
