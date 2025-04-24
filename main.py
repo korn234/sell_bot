@@ -14,6 +14,8 @@ from discord import Embed, ButtonStyle
 import asyncio
 import random
 import aiohttp
+from datetime import datetime, timedelta
+import pytz
 
 # โหลดค่าในไฟล์ .env
 load_dotenv()
@@ -811,7 +813,9 @@ async def notify_new_key(type: str, duration: str, key: str):
             color=discord.Color.green()
         )
         await notification_channel.send(embed=embed)
-# Giveaway command
+from datetime import datetime, timedelta
+import pytz
+
 @bot.tree.command(name="giveaway", description="Start a giveaway")
 @app_commands.describe(name="The name of the giveaway", duration="Duration in seconds")
 async def giveaway(interaction: Interaction, name: str, duration: int):
@@ -829,13 +833,24 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
             else:
                 await interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
 
+    # Calculate the local time to announce the winner
+    now = datetime.now(pytz.utc)
+    end_time = now + timedelta(seconds=duration)
+    tz = pytz.timezone("Asia/Bangkok")
+    local_end_time = end_time.astimezone(tz)
+    formatted_end_time = local_end_time.strftime("%H:%M")
+
     # Create a view for the button
     view = View()
     view.add_item(JoinButton())
 
     # Send the initial giveaway message
     await interaction.response.send_message(
-        embed=Embed(title=f"🎉 {name} Giveaway 🎉", description=f"กดปุ่มเพื่อเข้าร่วม\nเวลา: {duration} วินาที", color=0x00FF00),
+        embed=Embed(
+            title=f"🎉 {name} Giveaway 🎉",
+            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {formatted_end_time} (ตามเวลาไทย)",
+            color=0x00FF00,
+        ),
         view=view
     )
 
@@ -848,7 +863,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         await interaction.followup.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{name} Giveaway**!")
     else:
         await interaction.followup.send(f"No one joined the **{name} Giveaway**. Better luck next time!")
-
+        
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
