@@ -778,6 +778,42 @@ async def notify_new_key(type: str, duration: str, key: str):
             color=discord.Color.green()
         )
         await notification_channel.send(embed=embed)
+# Giveaway command
+@bot.tree.command(name="giveaway", description="Start a giveaway")
+@app_commands.describe(name="The name of the giveaway", duration="Duration in seconds")
+async def giveaway(interaction: Interaction, name: str, duration: int):
+    participants = []
+
+    # Create the "Join Giveaway" button
+    class JoinButton(Button):
+        def __init__(self):
+            super().__init__(label="Join Giveaway", style=ButtonStyle.green)
+
+        async def callback(self, interaction: Interaction):
+            if interaction.user.id not in participants:
+                participants.append(interaction.user.id)
+                await interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
+            else:
+                await interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
+
+    # Create a view for the button
+    view = View()
+    view.add_item(JoinButton())
+
+    # Send the initial giveaway message
+    await interaction.response.send_message(
+        embed=Embed(title=f"🎉 {name} Giveaway 🎉", description=f"Click the button below to join!\nTime remaining: {duration} seconds", color=0x00FF00),
+        view=view
+    )
+
+    # Wait for the duration of the giveaway
+    await asyncio.sleep(duration)
+
+    # Pick a winner
+    if participants:
+        winner_id = random.choice(participants)
+        await interaction.followup.send(f"🎉 Congratulations <@{winner_id}>! You won the **{name} Giveaway**!")
+    else:
 
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
