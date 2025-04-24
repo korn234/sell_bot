@@ -24,7 +24,7 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 def create_gist(content):
     url = "https://api.github.com/gists"
     payload = {
-        "description": "Key for Syneyz",
+        "description": "Key for DoDEE",
         "public": False,
         "files": {
             "key.txt": {
@@ -813,9 +813,6 @@ async def notify_new_key(type: str, duration: str, key: str):
             color=discord.Color.green()
         )
         await notification_channel.send(embed=embed)
-from datetime import datetime, timedelta
-import pytz
-
 @bot.tree.command(name="giveaway", description="Start a giveaway")
 @app_commands.describe(name="The name of the giveaway", duration="Duration in seconds")
 async def giveaway(interaction: Interaction, name: str, duration: int):
@@ -826,12 +823,12 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         def __init__(self):
             super().__init__(label="Join Giveaway", style=ButtonStyle.green)
 
-        async def callback(self, interaction: Interaction):
-            if interaction.user.id not in participants:
-                participants.append(interaction.user.id)
-                await interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
+        async def callback(self, button_interaction: Interaction):
+            if button_interaction.user.id not in participants:
+                participants.append(button_interaction.user.id)
+                await button_interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
             else:
-                await interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
+                await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
 
     # Calculate the local time to announce the winner
     now = datetime.now(pytz.utc)
