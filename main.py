@@ -890,9 +890,13 @@ async def check_giveaway_winner():
         try:
             # แปลงเวลาสิ้นสุดจาก ISO format
             end_time = datetime.fromisoformat(giveaway_data["end_time"])
-            if datetime.now(pytz.utc) >= end_time:
+            current_time = datetime.now(pytz.utc)
+            print(f"🔍 Debug: Current time: {current_time}, End time: {end_time}")
+
+            if current_time >= end_time:
                 participants = giveaway_data.get("participants", [])
                 channel = bot.get_channel(1364857076911833159)  # ใส่ ID ของช่องที่ต้องการประกาศ
+                print(f"🔍 Debug: Participants: {participants}, Channel: {channel}")
 
                 if channel:
                     if participants:
@@ -901,18 +905,20 @@ async def check_giveaway_winner():
                         await channel.send(
                             f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!"
                         )
+                        print(f"🎉 ประกาศผู้ชนะ: {winner_id}")
                     else:
                         # ไม่มีผู้เข้าร่วม
                         await channel.send(
                             f"❌ ไม่มีใครเข้าร่วม **{giveaway_data['name']} Giveaway**. ลองใหม่ครั้งหน้า!"
                         )
+                        print("❌ ไม่มีผู้เข้าร่วมการแจกของรางวัล")
 
                 # ล้างข้อมูลการแจกของรางวัล
                 giveaway_data.clear()
                 save_giveaway_data(giveaway_data)
+                print("✅ ล้างข้อมูลการแจกของรางวัลเรียบร้อยแล้ว")
         except Exception as e:
             print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
-
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
