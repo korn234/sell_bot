@@ -819,15 +819,18 @@ GIVEAWAY_DATA_FILE = "giveaway_data.json"
 # ฟังก์ชันบันทึกข้อมูลการแจกของรางวัล
 def save_giveaway_data(data):
     with open(GIVEAWAY_DATA_FILE, "w") as f:
-        json.dump(data, f)
-
+        json.dump(data, f, indent=4)
+        
 # ฟังก์ชันโหลดข้อมูลการแจกของรางวัล
 def load_giveaway_data():
     if os.path.exists(GIVEAWAY_DATA_FILE):
-        with open(GIVEAWAY_DATA_FILE, "r") as f:
-            return json.load(f)
+        try:
+            with open(GIVEAWAY_DATA_FILE, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print("⚠️ Invalid JSON in giveaway_data.json. Resetting to empty.")
+            return {}
     return {}
-
 # โหลดข้อมูลการแจกของรางวัลเมื่อเริ่มต้น
 giveaway_data = load_giveaway_data()
 
