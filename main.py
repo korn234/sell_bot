@@ -8,6 +8,11 @@ from discord.ui import Button, View, Select
 from dotenv import load_dotenv
 import threading
 import asyncio
+from discord import Interaction
+from discord.ui import Button, View
+from discord import Embed, ButtonStyle
+import asyncio
+import random
 
 # โหลดค่าในไฟล์ .env
 load_dotenv()
