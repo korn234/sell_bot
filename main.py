@@ -13,6 +13,7 @@ from discord.ui import Button, View
 from discord import Embed, ButtonStyle
 import asyncio
 import random
+import aiohttp
 
 # โหลดค่าในไฟล์ .env
 load_dotenv()
@@ -636,9 +637,36 @@ class DailyView(View):
         super().__init__()
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
+
+@tasks.loop(seconds=60)  # ตรวจสอบทุก 60 วินาที
+async def check_tiktok_live():
+    TIKTOK_USERNAME = "dodeethailand"  # ชื่อผู้ใช้ TikTok ที่ต้องการตรวจสอบ
+    NOTIFICATION_CHANNEL_ID = 1201075584244129855  # ID ของช่อง Discord ที่จะแจ้งเตือน
+    channel = bot.get_channel(NOTIFICATION_CHANNEL_ID)
+    if not channel:
+        print("❌ ไม่พบช่องแจ้งเตือน")
+        return
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            # ตัวอย่าง URL สำหรับตรวจสอบสถานะการไลฟ์ (ต้องปรับให้เหมาะสมกับ TikTok API หรือบริการที่ใช้)
+            url = f"https://www.tiktok.com/@{TIKTOK_USERNAME}/live"
+            async with session.get(url) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    if "LIVE" in html:  # ตรวจสอบคำว่า "LIVE" ใน HTML
+                        if not hasattr(bot, "tiktok_live_notified") or not bot.tiktok_live_notified:
+                            await channel.send(f"🔴 {TIKTOK_USERNAME} กำลังไลฟ์อยู่บน TikTok! ไปดูได้เลยที่ {url} @everyone")
+                            bot.tiktok_live_notified = True
+                    else:
+                        bot.tiktok_live_notified = False
+        except Exception as e:
+            print(f"❌ เกิดข้อผิดพลาดในการตรวจสอบ TikTok: {e}")
+
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    check_tiktok_live.start()  # เริ่มต้น Task ตรวจสอบการไลฟ์
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} command(s)")
