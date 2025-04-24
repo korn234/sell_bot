@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://install.appcenter.ms/users/potter41123/apps/rov-vip/distribution_groups/vip\n\n"
+                                            "https://ipa.ipasign.cc:2052/download/9f4672e6-ae27-b770-1954-853bcbcbabcc/20250424222009416\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "https://install.appcenter.ms/users/potter41123/apps/rov-vip/distribution_groups/vip\n\n คีย์\nDoDEE\nFullNew"  # Replace this with the actual game link
+            game_link = "https://ipa.ipasign.cc:2052/download/9f4672e6-ae27-b770-1954-853bcbcbabcc/20250424222009416\n\n คีย์\nDoDEE\nFullNew"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
@@ -1052,7 +1052,7 @@ async def on_message(message):
         "วิธีติดตั้ง": "📱 วิธีติดตั้ง:\n1. ติดตั้ง DNS\n2. ติดตั้งแอพ\n3. ใส่คีย์ที่ได้รับ",
         "ช่องทางชำระเงิน": "💳 ช่องทางชำระเงิน:\n- True Wallet\n- โอนผ่านธนาคาร",
         "ติดต่อแอดมิน": "👨‍💼 กดปุ่ม 'ติดต่อแอดมิน' ในช่องสั่งซื้อได้เลยครับ",
-        "Admin": "https://install.appcenter.ms/users/dodeexcheatios/apps/rov-dodee-full/distribution_groups/rov",
+        "Admin": "https://ipa.ipasign.cc:2052/download/9f4672e6-ae27-b770-1954-853bcbcbabcc/20250424222009416",
         "เช่าโปร": "ไปซื้อที่ห้องรายซีหรือรายวันค้าบบ"
     }
 
