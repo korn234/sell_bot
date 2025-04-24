@@ -813,10 +813,35 @@ async def notify_new_key(type: str, duration: str, key: str):
             color=discord.Color.green()
         )
         await notification_channel.send(embed=embed)
+# ไฟล์สำหรับเก็บข้อมูลการแจกของรางวัล
+GIVEAWAY_DATA_FILE = "giveaway_data.json"
+
+# ฟังก์ชันบันทึกข้อมูลการแจกของรางวัล
+def save_giveaway_data(data):
+    with open(GIVEAWAY_DATA_FILE, "w") as f:
+        json.dump(data, f)
+
+# ฟังก์ชันโหลดข้อมูลการแจกของรางวัล
+def load_giveaway_data():
+    if os.path.exists(GIVEAWAY_DATA_FILE):
+        with open(GIVEAWAY_DATA_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+# โหลดข้อมูลการแจกของรางวัลเมื่อเริ่มต้น
+giveaway_data = load_giveaway_data()
+
 @bot.tree.command(name="giveaway", description="Start a giveaway")
 @app_commands.describe(name="The name of the giveaway", duration="Duration in seconds")
 async def giveaway(interaction: Interaction, name: str, duration: int):
     participants = []
+    end_time = datetime.now(pytz.utc) + timedelta(seconds=duration)
+
+    # บันทึกข้อมูลการแจกของรางวัล
+    giveaway_data["name"] = name
+    giveaway_data["end_time"] = end_time.isoformat()
+    giveaway_data["participants"] = participants
+    save_giveaway_data(giveaway_data)
 
     # Create the "Join Giveaway" button
     class JoinButton(Button):
@@ -826,6 +851,8 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         async def callback(self, button_interaction: Interaction):
             if button_interaction.user.id not in participants:
                 participants.append(button_interaction.user.id)
+                giveaway_data["participants"] = participants
+                save_giveaway_data(giveaway_data)
                 await button_interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
             else:
                 await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
@@ -833,22 +860,15 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Create a persistent view for the button
     class GiveawayView(View):
         def __init__(self):
-            super().__init__(timeout=None)  # Set timeout to None for persistence
+            super().__init__(timeout=None)
             self.add_item(JoinButton())
-
-    # Calculate the local time to announce the winner
-    now = datetime.now(pytz.utc)
-    end_time = now + timedelta(seconds=duration)
-    tz = pytz.timezone("Asia/Bangkok")
-    local_end_time = end_time.astimezone(tz)
-    formatted_end_time = local_end_time.strftime("%H:%M")
 
     # Send the initial giveaway message
     view = GiveawayView()
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
-            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {formatted_end_time}",
+            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {end_time.strftime('%H:%M:%S')} UTC",
             color=0x00FF00,
         ),
         view=view
@@ -857,16 +877,31 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Register the persistent view
     bot.add_view(view)
 
-    # Wait for the duration of the giveaway
-    await asyncio.sleep(duration)
+@tasks.loop(seconds=10)  # ตรวจสอบทุก 10 วินาที
+async def check_giveaway_winner():
+    if "end_time" in giveaway_data:
+        end_time = datetime.fromisoformat(giveaway_data["end_time"])
+        if datetime.now(pytz.utc) >= end_time:
+            participants = giveaway_data.get("participants", [])
+            if participants:
+                winner_id = random.choice(participants)
+                channel = bot.get_channel(1201075584244129855)  # ใส่ ID ของช่องที่ต้องการประกาศ
+                if channel:
+                    await channel.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!")
+            else:
+                channel = bot.get_channel(1201075584244129855)
+                if channel:
+                    await channel.send(f"No one joined the **{giveaway_data['name']} Giveaway**. Better luck next time!")
 
-    # Pick a winner
-    if participants:
-        winner_id = random.choice(participants)
-        await interaction.followup.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{name} Giveaway**!")
-    else:
-        await interaction.followup.send(f"No one joined the **{name} Giveaway**. Better luck next time!")
-        
+            # ล้างข้อมูลการแจกของรางวัล
+            giveaway_data.clear()
+            save_giveaway_data(giveaway_data)
+
+@bot.event
+async def on_ready():
+    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    bot.add_view(GiveawayView())  # เพิ่ม Persistent View
+    check_giveaway_winner.start()  # เริ่มต้น Task ตรวจสอบผู้ชนะ
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
