@@ -799,10 +799,11 @@ async def post_messages():
         await season_channel.send(embed=embed2, view=SeasonView())
 
 # Task ลบข้อความและโพสต์ใหม่ทุก 3 นาที
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=3)
 async def clear_and_post():
     await clear_channels()
     await post_messages()
+
 
 async def notify_new_key(type: str, duration: str, key: str):
     notification_channel = bot.get_channel(1357308234137866370)
@@ -918,6 +919,7 @@ async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
     bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
+    clear_and_post.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
