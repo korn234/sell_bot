@@ -821,7 +821,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Create the "Join Giveaway" button
     class JoinButton(Button):
         def __init__(self):
-            super().__init__(label="Join Giveaway", style=ButtonStyle.green)
+            super().__init__(label="Join Giveaway", style=ButtonStyle.green, custom_id="join_giveaway_button")
 
         async def callback(self, button_interaction: Interaction):
             if button_interaction.user.id not in participants:
@@ -833,7 +833,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Create a persistent view for the button
     class GiveawayView(View):
         def __init__(self):
-            super().__init__(timeout=None)
+            super().__init__(timeout=None)  # Set timeout to None for persistence
             self.add_item(JoinButton())
 
     # Calculate the local time to announce the winner
