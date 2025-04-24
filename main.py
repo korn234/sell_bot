@@ -807,7 +807,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
 
     # Send the initial giveaway message
     await interaction.response.send_message(
-        embed=Embed(title=f"🎉 {name} Giveaway 🎉", description=f"Click the button below to join!\nTime remaining: {duration} seconds", color=0x00FF00),
+        embed=Embed(title=f"🎉 {name} Giveaway 🎉", description=f"กดปุ่มเพื่อเข้าร่วม\nเวลา: {duration} วินาที", color=0x00FF00),
         view=view
     )
 
@@ -817,7 +817,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Pick a winner
     if participants:
         winner_id = random.choice(participants)
-        await interaction.followup.send(f"🎉 Congratulations <@{winner_id}>! You won the **{name} Giveaway**!")
+        await interaction.followup.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{name} Giveaway**!")
     else:
         await interaction.followup.send(f"No one joined the **{name} Giveaway**. Better luck next time!")
 
