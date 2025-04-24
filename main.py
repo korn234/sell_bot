@@ -892,11 +892,11 @@ async def check_giveaway_winner():
             participants = giveaway_data.get("participants", [])
             if participants:
                 winner_id = random.choice(participants)
-                channel = bot.get_channel(1201075584244129855)  # ใส่ ID ของช่องที่ต้องการประกาศ
+                channel = bot.get_channel(1364857076911833159)  # ใส่ ID ของช่องที่ต้องการประกาศ
                 if channel:
                     await channel.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!")
             else:
-                channel = bot.get_channel(1201075584244129855)
+                channel = bot.get_channel(1364857076911833159)
                 if channel:
                     await channel.send(f"No one joined the **{giveaway_data['name']} Giveaway**. Better luck next time!")
 
