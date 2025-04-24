@@ -887,22 +887,31 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
 @tasks.loop(seconds=10)  # ตรวจสอบทุก 10 วินาที
 async def check_giveaway_winner():
     if "end_time" in giveaway_data:
-        end_time = datetime.fromisoformat(giveaway_data["end_time"])
-        if datetime.now(pytz.utc) >= end_time:
-            participants = giveaway_data.get("participants", [])
-            if participants:
-                winner_id = random.choice(participants)
+        try:
+            # แปลงเวลาสิ้นสุดจาก ISO format
+            end_time = datetime.fromisoformat(giveaway_data["end_time"])
+            if datetime.now(pytz.utc) >= end_time:
+                participants = giveaway_data.get("participants", [])
                 channel = bot.get_channel(1364857076911833159)  # ใส่ ID ของช่องที่ต้องการประกาศ
-                if channel:
-                    await channel.send(f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!")
-            else:
-                channel = bot.get_channel(1364857076911833159)
-                if channel:
-                    await channel.send(f"No one joined the **{giveaway_data['name']} Giveaway**. Better luck next time!")
 
-            # ล้างข้อมูลการแจกของรางวัล
-            giveaway_data.clear()
-            save_giveaway_data(giveaway_data)
+                if channel:
+                    if participants:
+                        # เลือกผู้ชนะ
+                        winner_id = random.choice(participants)
+                        await channel.send(
+                            f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!"
+                        )
+                    else:
+                        # ไม่มีผู้เข้าร่วม
+                        await channel.send(
+                            f"❌ ไม่มีใครเข้าร่วม **{giveaway_data['name']} Giveaway**. ลองใหม่ครั้งหน้า!"
+                        )
+
+                # ล้างข้อมูลการแจกของรางวัล
+                giveaway_data.clear()
+                save_giveaway_data(giveaway_data)
+        except Exception as e:
+            print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
 
 @bot.event
 async def on_ready():
