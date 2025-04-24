@@ -840,6 +840,10 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     participants = []
     end_time = datetime.now(pytz.utc) + timedelta(seconds=duration)
 
+    # แปลงเวลาสิ้นสุดเป็นเวลาของไทย
+    thai_tz = pytz.timezone("Asia/Bangkok")
+    end_time_thai = end_time.astimezone(thai_tz)
+
     # บันทึกข้อมูลการแจกของรางวัล
     giveaway_data["name"] = name
     giveaway_data["end_time"] = end_time.isoformat()
@@ -871,7 +875,7 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
-            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {end_time.strftime('%H:%M:%S')} UTC",
+            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {end_time_thai.strftime('%H:%M:%S')} (เวลาไทย)",
             color=0x00FF00,
         ),
         view=view
