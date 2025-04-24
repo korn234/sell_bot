@@ -878,9 +878,6 @@ class GiveawayView(View):
         super().__init__(timeout=None)
         self.add_item(JoinButton(participants, giveaway_data))
 
-    # Register the persistent view
-    bot.add_view(view)
-
 @tasks.loop(seconds=10)  # ตรวจสอบทุก 10 วินาที
 async def check_giveaway_winner():
     if "end_time" in giveaway_data:
