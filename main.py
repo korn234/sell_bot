@@ -50,48 +50,6 @@ def create_gist(content):
         print(f"❌ เกิดข้อผิดพลาดในการสร้าง Gist: {e}")
         return None
 
-import openai
-
-# ตั้งค่า OpenAI API Key
-openai.api_key = os.getenv("OPENAI_API_KEY")  # ใส่ API Key ของคุณในไฟล์ .env
-
-async def get_chatgpt_response(prompt):
-    """ส่งข้อความไปยัง ChatGPT และรับคำตอบ"""
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # หรือ "gpt-4" หากคุณมีสิทธิ์ใช้งาน
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            temperature=0.7,
-        )
-        return response['choices'][0]['message']['content'].strip()
-    except Exception as e:
-        print(f"❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ ChatGPT: {e}")
-        return "ขออภัย บอทไม่สามารถตอบกลับได้ในขณะนี้ 😔"
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    # ตรวจสอบว่าผู้ใช้แท็กบอท
-    if bot.user.mentioned_in(message):
-        prompt = message.content.replace(f"<@{bot.user.id}>", "").strip()  # ลบการแท็กบอทออกจากข้อความ
-        if prompt:
-            await message.channel.send("💬 กำลังคิดคำตอบ...")
-            response = await get_chatgpt_response(prompt)
-            await message.reply(response)
-
-    # ตรวจสอบว่าข้อความเป็นการตอบกลับข้อความของบอท
-    elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
-        prompt = message.content.strip()
-        if prompt:
-            await message.channel.send("💬 กำลังคิดคำตอบ...")
-            response = await get_chatgpt_response(prompt)
-            await message.reply(response)
-
-    await bot.process_commands(message)
-
 TOKEN = os.getenv("DISCORD_TOKEN")
 SEASON_CHANNEL_ID = 1304398097421434930  # ช่องซีซั่น
 DAILY_CHANNEL_ID = 1357307785833873589   # ช่องรายวัน
@@ -956,12 +914,57 @@ async def check_giveaway_winner():
                 print("✅ ล้างข้อมูลการแจกของรางวัลเรียบร้อยแล้ว")
         except Exception as e:
             print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
+
+import openai
+
+# ตั้งค่า OpenAI API Key
+openai.api_key = os.getenv("OPENAI_API_KEY")  # ใส่ API Key ของคุณในไฟล์ .env
+
+async def get_chatgpt_response(prompt):
+    """ส่งข้อความไปยัง ChatGPT และรับคำตอบ"""
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # หรือ "gpt-4" หากคุณมีสิทธิ์ใช้งาน
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=150,
+            temperature=0.7,
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except Exception as e:
+        print(f"❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ ChatGPT: {e}")
+        return "ขออภัย บอทไม่สามารถตอบกลับได้ในขณะนี้ 😔"
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    # ตรวจสอบว่าผู้ใช้แท็กบอท
+    if bot.user.mentioned_in(message):
+        prompt = message.content.replace(f"<@{bot.user.id}>", "").strip()  # ลบการแท็กบอทออกจากข้อความ
+        if prompt:
+            await message.channel.send("💬 กำลังคิดคำตอบ...")
+            response = await get_chatgpt_response(prompt)
+            await message.reply(response)
+
+    # ตรวจสอบว่าข้อความเป็นการตอบกลับข้อความของบอท
+    elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
+        prompt = message.content.strip()
+        if prompt:
+            await message.channel.send("💬 กำลังคิดคำตอบ...")
+            response = await get_chatgpt_response(prompt)
+            await message.reply(response)
+
+    await bot.process_commands(message)
+
+
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
     bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
     clear_and_post.start()
+    on_message.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
