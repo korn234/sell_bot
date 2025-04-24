@@ -830,6 +830,12 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
             else:
                 await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
 
+    # Create a persistent view for the button
+    class GiveawayView(View):
+        def __init__(self):
+            super().__init__(timeout=None)
+            self.add_item(JoinButton())
+
     # Calculate the local time to announce the winner
     now = datetime.now(pytz.utc)
     end_time = now + timedelta(seconds=duration)
@@ -837,11 +843,8 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     local_end_time = end_time.astimezone(tz)
     formatted_end_time = local_end_time.strftime("%H:%M")
 
-    # Create a view for the button
-    view = View()
-    view.add_item(JoinButton())
-
     # Send the initial giveaway message
+    view = GiveawayView()
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
@@ -850,6 +853,9 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         ),
         view=view
     )
+
+    # Register the persistent view
+    bot.add_view(view)
 
     # Wait for the duration of the giveaway
     await asyncio.sleep(duration)
