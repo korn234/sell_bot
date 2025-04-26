@@ -64,8 +64,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # จับคู่ QR และเบอร์โทร 1:1
 # Format: (QR URL, Phone number, probability weight)
 SEASON_PAYMENT_OPTIONS = [
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 80),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 20),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 70),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 50),
     ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg?ex=67f5241f&is=67f3d29f&hm=919cdde082227255e674acea218d36bb904c1e92b93b5cdb0f9e66dbd1112654&=&format=webp&width=456&height=988", "094-338-9674", 50)
 ]
 
@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://ipa.ipasign.cc:2052/download/0e3ab9c4-ff25-efce-2aa0-196cd699dcc9/20250425120050912\n\n"
+                                            "https://ipa.ipasign.cc:2052/download/ffc409e6-5332-1132-2b41-36018646b8f0/20250426183445980\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://ipa.ipasign.cc:2052/download/0e3ab9c4-ff25-efce-2aa0-196cd699dcc9/20250425120050912\n\n คีย์\nDoDEE\nFullNew"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://ipa.ipasign.cc:2052/download/ffc409e6-5332-1132-2b41-36018646b8f0/20250426183445980\n\n คีย์\nDoDEE\nFullNew"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
