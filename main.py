@@ -321,7 +321,7 @@ class ConfirmView(View):
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://www.installonair.com/app-download-link/yHqGAa\n\n"
+                                            "https://ipa.ipasign.cc:2052/download/e7dbeab7-5b94-9b23-b230-4d383eecc480/20250426163812050\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
