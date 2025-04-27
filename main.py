@@ -737,7 +737,7 @@ async def post_messages():
                           "```css\n"
                           "• ROV iOS รายซีซั่น (26/04/68)   🟢\n"
                           "• ROV iOS รายวัน (26/04/68)    🟢\n"
-                          "• ROV Android                 🟡\n"
+                          "• ROV Android                 🟢\n"
                           "• Free Fire                   🟢\n"
                           "• 8 Ball Pool (เจล)            🟢\n"
                           "```")
