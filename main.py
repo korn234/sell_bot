@@ -321,7 +321,7 @@ class ConfirmView(View):
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
                                             "https://t.me/savageios\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://ipa.ipasign.cc:2052/download/e7dbeab7-5b94-9b23-b230-4d383eecc480/20250426163812050\n\n"
+                                            "เข้าเทเลแกรมไปโหลด\n\n https://t.me/savageios\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://ipa.ipasign.cc:2052/download/f67c9d5b-f7db-4e0f-1022-2234e918e12d/20250427184521500\n\n"
+                                            "https://kravasigner.com/install?uuid=c6d01efb-dc6f-4b76-baae-482871b6e658\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://ipa.ipasign.cc:2052/download/f67c9d5b-f7db-4e0f-1022-2234e918e12d/20250427184521500\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://kravasigner.com/install?uuid=c6d01efb-dc6f-4b76-baae-482871b6e658\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
