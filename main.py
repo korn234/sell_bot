@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://ipa.ipasign.cc:2052/download/f0ffe1c8-3695-9ab1-a529-22b6fde2c1c3/20250427124625602\n\n"
+                                            "https://ipa.ipasign.cc:2052/download/e2ce1368-a42d-ca80-c572-f053d72512c0/20250427152959835\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://ipa.ipasign.cc:2052/download/f0ffe1c8-3695-9ab1-a529-22b6fde2c1c3/20250427124625602\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://ipa.ipasign.cc:2052/download/e2ce1368-a42d-ca80-c572-f053d72512c0/20250427152959835\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
