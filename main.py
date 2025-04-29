@@ -1136,6 +1136,15 @@ async def send_game(interaction: discord.Interaction):
     )
 
 @bot.event
+async def on_ready():
+    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ ซิงค์คำสั่งสำเร็จ: {len(synced)} คำสั่ง")
+    except Exception as e:
+        print(f"❌ เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
+
+@bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
