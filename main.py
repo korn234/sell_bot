@@ -1084,19 +1084,23 @@ async def slash_announce(interaction: discord.Interaction, message: str):
     embed.set_footer(text=f"ประกาศโดย {interaction.user.name}")
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="send_game", description="ส่งลิงก์ตัวเกมให้กับสมาชิกที่มียศ VIP และ Super VIP (Admin only)")
+@bot.tree.command(name="send", description="ส่งลิงก์ตัวเกมและคีย์ให้กับสมาชิกที่มียศ VIP และ Super VIP (Admin only)")
 async def send_game(interaction: discord.Interaction):
     if not any(role.name == "Admin" for role in interaction.user.roles):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
-    # ลิงก์ตัวเกมที่ต้องการส่ง
+    # ลิงก์ตัวเกมและคีย์ที่ต้องการส่ง
     game_link = """🎮 **ลิงก์ตัวเกมสำหรับ VIP และ Super VIP**
     DNS กันดำ:
     https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1
 
     ตัวเกม:
     https://kravasigner.com/install?uuid=9efa1442-3d63-4eab-a083-576c8eaea053
+
+    🔑 **คีย์ของคุณ:**
+    RoV
+    V2.0
     """
 
     # IDs ของยศที่ต้องการตรวจสอบ
@@ -1119,7 +1123,7 @@ async def send_game(interaction: discord.Interaction):
     for member in vip_members:
         try:
             dm_channel = await member.create_dm()
-            await dm_channel.send(game_link)
+            await dm_channel.send(f"👋 สวัสดี {member.mention}!\n\n{game_link}")
             success_count += 1
         except Exception as e:
             print(f"❌ ไม่สามารถส่ง DM ให้ {member.name}: {e}")
