@@ -151,6 +151,23 @@ def remove_used_key(duration, key):
     return False
 
 
+class CloseButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="❌ ปิดช่องแชท", style=discord.ButtonStyle.red, custom_id="close_button")
+
+    async def callback(self, interaction: discord.Interaction):
+        if isinstance(interaction.channel, discord.TextChannel):
+            await interaction.channel.delete()
+
+class PersistentView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(CloseButton())
+
+# Store active views
+active_views = {}
+
+
 class ConfirmView(View):
 
     def __init__(self, price: int, duration: str):
@@ -170,12 +187,9 @@ class ConfirmView(View):
         else:
             self.status_message = await interaction.channel.send(embed=embed)
 
-    @discord.ui.button(
-        label="✅ ยืนยันการโอนเงิน",
-        style=discord.ButtonStyle.green,
-        custom_id="confirm_payment"
-    )
-    async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction,
+                      button: discord.ui.Button):
         # Create private channel
         overwrites = {
             interaction.guild.default_role:
@@ -229,18 +243,17 @@ class ConfirmView(View):
         embed.set_image(url=qr_url)
 
         # Create confirmation view
-        class ConfirmPaymentView(discord.ui.View):
+        class ConfirmPaymentView(View):
+
             def __init__(self, price, duration):
-                super().__init__(timeout=None)  # Set timeout to None for persistence
+                super().__init__()
                 self.price = price
                 self.duration = duration
 
-            @discord.ui.button(
-                label="✅ ยืนยันการโอนเงิน",
-                style=discord.ButtonStyle.green,
-                custom_id="confirm_payment"
-            )
-            async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
+            @discord.ui.button(label="✅ ยืนยันการโอนเงิน",
+                               style=discord.ButtonStyle.green)
+            async def confirm_payment(self, interaction: discord.Interaction,
+                                      button: discord.ui.Button):
                 await self.view.update_status(interaction, "⌛ กำลังตรวจสอบการชำระเงิน...", discord.Color.gold())
                 # ตรวจสอบสลิปการโอนเงิน
                 def check_payment(message):
@@ -393,11 +406,7 @@ class ConfirmView(View):
                     await interaction.followup.send(
                         f"❌ เกิดข้อผิดพลาด: {str(e)}", ephemeral=True)
 
-            @discord.ui.button(
-                label="❌ ยกเลิกการชำระเงิน",
-                style=discord.ButtonStyle.red,
-                custom_id="cancel_payment"
-            )
+            @discord.ui.button(label="❌ ยกเลิกการชำระเงิน", style=discord.ButtonStyle.red)
             async def cancel_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await self.view.update_status(interaction, "🚫 ยกเลิกการทำรายการแล้ว", discord.Color.red())
                 await interaction.response.send_message("❌ ยกเลิกการชำระเงินแล้ว", ephemeral=True)
@@ -634,50 +643,31 @@ class DailyView(View):
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    check_tiktok_live.start()  # เริ่มต้น Task ตรวจสอบการไลฟ์
     try:
-        # Sync commands
-        print("⌛ กำลัง Sync commands...")
-        await bot.tree.sync()
-        print("✅ Sync commands สำเร็จ!")
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
 
-        # Register persistent views
-        bot.add_view(ConfirmPaymentView(0, ""))
-        
-        # Restore views in existing channels
+        # Add persistent view
+        bot.add_view(PersistentView())
+
+        # Restore views in active channels
         for guild in bot.guilds:
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel):
-                    if channel.name.startswith("order-"):
-                        # Add persistent view for order channels
-                        view = PersistentView()
-                        await channel.send("🔄 กำลังโหลดปุ่มกดใหม่...", view=view)
-
-        # Start tasks
-        check_giveaway_winner.start()
-        clear_and_post.start()
+                if isinstance(channel, discord.TextChannel) and channel.name.startswith(("order-", "support-")):
+                    view = PersistentView()
+                    active_views[channel.id] = view
+                    try:
+                        async for message in channel.history(limit=100):
+                            if message.author == bot.user and "ช่องทางติดต่อแอดมิน" in message.content:
+                                await message.edit(view=view)
+                                break
+                    except discord.HTTPException:
+                        continue
 
     except Exception as e:
-        print(f"❌ Error in on_ready: {e}")
+        print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
 
-@bot.event
-async def on_ready():
-    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    try:
-        # Sync commands
-        print("⌛ กำลัง Sync commands...")
-        await bot.tree.sync()
-        print("✅ Sync commands สำเร็จ!")
-
-        # Register persistent views
-        bot.add_view(ConfirmPaymentView(0, ""))
-        
-        # ...rest of your existing on_ready code...
-        
-    except Exception as e:
-        print(f"❌ Error in on_ready: {e}")
-
-    # Start other tasks
-    check_giveaway_winner.start()
     clear_and_post.start()
 
 # ฟังก์ชันลบข้อความทั้งหมดก่อนโพสต์ใหม่
@@ -903,24 +893,9 @@ async def check_giveaway_winner():
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    try:
-        # Sync commands
-        print("⌛ กำลัง Sync commands...")
-        await bot.tree.sync()
-        print("✅ Sync commands สำเร็จ!")
-
-        # Register persistent views
-        bot.add_view(ConfirmPaymentView(0, ""))
-        
-        # ...rest of your existing on_ready code...
-        
-    except Exception as e:
-        print(f"❌ Error in on_ready: {e}")
-
-    # Start other tasks
+    bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
     clear_and_post.start()
-
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
@@ -1014,93 +989,6 @@ async def list_keys(interaction: discord.Interaction, type: str, duration: str):
     else:
         await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
-@bot.tree.command(name="sendgame", description="ส่งตัวเกมให้ VIP/Super VIP (Admin only)")
-@app_commands.default_permissions(administrator=True)
-@commands.cooldown(1, 300, commands.BucketType.guild)  # เพิ่ม cooldown 5 นาที
-async def send_game(interaction: discord.Interaction):
-    try:
-        if not any(role.name == "Admin" for role in interaction.user.roles):
-            await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
-            return
-
-        allowed_role_ids = [1337637128410103882, 1364253774977175652]
-        game_info = """🎮 **ลิงก์ดาวน์โหลดตัวเกม**\n
-📱 **DNS กันดำ**
-https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n
-🎮 **ตัวเกม**
-https://kravasigner.com/install?uuid=fdf566c5-7324-4917-9ec8-cf84b9dac2d2\n
-🔑 **คีย์ทดสอบ**
-RoV
-V2.0\n
-📌 **หมายเหตุ:** ใช้งานได้เฉพาะสมาชิก VIP และ Super VIP เท่านั้น"""
-
-        await interaction.response.send_message("⌛ กำลังดำเนินการส่งตัวเกม...", ephemeral=True)
-
-        success_count = 0
-        failed_count = 0
-        
-        # รวบรวมสมาชิกที่มีสิทธิ์ก่อน
-        eligible_members = [
-            member for member in interaction.guild.members 
-            if any(role.id in allowed_role_ids for role in member.roles)
-        ]
-
-        # แบ่งการส่งเป็นกลุ่มๆ ละ 5 คน
-        chunk_size = 5
-        for i in range(0, len(eligible_members), chunk_size):
-            chunk = eligible_members[i:i + chunk_size]
-            
-            # ส่งข้อความพร้อมกันในแต่ละกลุ่ม
-            tasks = []
-            for member in chunk:
-                tasks.append(send_dm_with_retry(member, game_info))
-            
-            # รอให้การส่งในกลุ่มเสร็จสิ้น
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            # นับผลลัพธ์
-            for result in results:
-                if result is True:
-                    success_count += 1
-                else:
-                    failed_count += 1
-            
-            # พักระหว่างกลุ่ม
-            await asyncio.sleep(2)
-
-        summary = f"✅ ส่งตัวเกมสำเร็จ: {success_count} คน\n❌ ไม่สำเร็จ: {failed_count} คน"
-        
-        # ส่งสรุปผลไปยังช่องแจ้งเตือน
-        try:
-            notification_channel = interaction.guild.get_channel(1357308234137866370)
-            if notification_channel:
-                embed = discord.Embed(
-                    title="📤 สรุปการส่งตัวเกม",
-                    description=summary,
-                    color=discord.Color.green()
-                )
-                await notification_channel.send(embed=embed)
-        except Exception as e:
-            print(f"ไม่สามารถส่งการแจ้งเตือน: {e}")
-
-        await interaction.followup.send(summary, ephemeral=True)
-
-    except Exception as e:
-        await interaction.followup.send(f"❌ เกิดข้อผิดพลาด: {str(e)}", ephemeral=True)
-
-async def send_dm_with_retry(member, content, max_retries=2):
-    """ฟังก์ชันส่ง DM พร้อมระบบ retry"""
-    for i in range(max_retries):
-        try:
-            dm_channel = await member.create_dm()
-            await dm_channel.send(content)
-            return True
-        except Exception as e:
-            if i == max_retries - 1:
-                print(f"❌ ไม่สามารถส่ง DM ให้ {member.name}: {e}")
-                return False
-            await asyncio.sleep(1)
-
 @bot.command(name="announce")
 @commands.has_role("Admin")
 async def text_announce(ctx, *, message):
@@ -1133,6 +1021,41 @@ class PersistentView(View):
         super().__init__(timeout=None)
         self.add_item(CloseButton())  # เพิ่ม CloseButton ใน PersistentView
 
+# เพิ่ม PersistentView เพื่อให้ปุ่มสามารถใช้งานได้หลังจากรีสตาร์ท
+@bot.event
+async def on_ready():
+    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
+
+    # เพิ่ม Persistent View เพื่อให้ใช้งานปุ่มได้หลังจากรีสตาร์ท
+    bot.add_view(PersistentView())
+    for channel_id in active_views:
+        view = active_views[channel_id]
+        bot.add_view(view)
+
+    # เริ่มต้น Task ต่าง ๆ
+    check_giveaway_winner.start()
+    clear_and_post.start()
+
+# Restore active views ในช่องที่เคยสร้างไว้
+for guild in bot.guilds:
+    for channel in guild.text_channels:
+        if channel.name.startswith(("order-", "support-")):
+            view = PersistentView()
+            active_views[channel.id] = view
+            bot.add_view(view)
+            try:
+                async for message in channel.history(limit=100):
+                    if message.author == bot.user and hasattr(message, "components"):
+                        await message.edit(view=view)
+                        break
+            except Exception as e:
+                print(f"❌ ไม่สามารถ Restore view ใน {channel.name}: {e}")
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -1155,29 +1078,6 @@ async def on_message(message):
             break
 
     await bot.process_commands(message)
-
-@bot.tree.command(name="sync", description="Sync slash commands (Admin only)")
-@app_commands.default_permissions(administrator=True)
-async def sync(interaction: discord.Interaction):
-    if not any(role.name == "Admin" for role in interaction.user.roles):
-        await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
-        return
-        
-    try:
-        print("🔄 กำลัง Sync commands...")
-        synced = await bot.tree.sync()
-        print(f"✅ Sync สำเร็จ! ({len(synced)} คำสั่ง)")
-        await interaction.response.send_message(
-            f"✅ Sync commands สำเร็จ! ({len(synced)} คำสั่ง)",
-            ephemeral=True
-        )
-    except Exception as e:
-        print(f"❌ Sync ไม่สำเร็จ: {e}")
-        await interaction.response.send_message(
-            f"❌ Sync ไม่สำเร็จ: {e}",
-            ephemeral=True
-        )
-
 
 if __name__ == "__main__":
     from myserver import run_server
