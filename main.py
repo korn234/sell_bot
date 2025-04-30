@@ -635,28 +635,44 @@ class DailyView(View):
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
     try:
+        # Sync commands
+        print("⌛ กำลัง Sync commands...")
+        await bot.tree.sync()
+        print("✅ Sync commands สำเร็จ!")
+
         # Register persistent views
-        bot.add_view(ConfirmPaymentView(0, ""))  # Add empty view for persistence
+        bot.add_view(ConfirmPaymentView(0, ""))
         
         # Restore views in existing channels
         for guild in bot.guilds:
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel) and channel.name.startswith("order-"):
-                    try:
-                        async for message in channel.history(limit=100):
-                            if message.author == bot.user and "รายละเอียดการสั่งซื้อ" in message.content:
-                                # Get price and duration from channel topic
-                                topic = channel.topic
-                                if topic:
-                                    price = int(topic.split(" - ")[1].split(" ")[0])
-                                    duration = topic.split(" - ")[0].split(": ")[1]
-                                    view = ConfirmPaymentView(price, duration)
-                                    view.add_item(CloseButton())
-                                    await message.edit(view=view)
-                    except Exception as e:
-                        print(f"Error restoring view in channel {channel.name}: {e}")
-                        
-        print("✅ Restored all persistent views")
+                if isinstance(channel, discord.TextChannel):
+                    if channel.name.startswith("order-"):
+                        # Add persistent view for order channels
+                        view = PersistentView()
+                        await channel.send("🔄 กำลังโหลดปุ่มกดใหม่...", view=view)
+
+        # Start tasks
+        check_giveaway_winner.start()
+        clear_and_post.start()
+
+    except Exception as e:
+        print(f"❌ Error in on_ready: {e}")
+
+@bot.event
+async def on_ready():
+    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    try:
+        # Sync commands
+        print("⌛ กำลัง Sync commands...")
+        await bot.tree.sync()
+        print("✅ Sync commands สำเร็จ!")
+
+        # Register persistent views
+        bot.add_view(ConfirmPaymentView(0, ""))
+        
+        # ...rest of your existing on_ready code...
+        
     except Exception as e:
         print(f"❌ Error in on_ready: {e}")
 
@@ -887,7 +903,21 @@ async def check_giveaway_winner():
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
+    try:
+        # Sync commands
+        print("⌛ กำลัง Sync commands...")
+        await bot.tree.sync()
+        print("✅ Sync commands สำเร็จ!")
+
+        # Register persistent views
+        bot.add_view(ConfirmPaymentView(0, ""))
+        
+        # ...rest of your existing on_ready code...
+        
+    except Exception as e:
+        print(f"❌ Error in on_ready: {e}")
+
+    # Start other tasks
     check_giveaway_winner.start()
     clear_and_post.start()
 
@@ -1125,6 +1155,29 @@ async def on_message(message):
             break
 
     await bot.process_commands(message)
+
+@bot.tree.command(name="sync", description="Sync slash commands (Admin only)")
+@app_commands.default_permissions(administrator=True)
+async def sync(interaction: discord.Interaction):
+    if not any(role.name == "Admin" for role in interaction.user.roles):
+        await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
+        return
+        
+    try:
+        print("🔄 กำลัง Sync commands...")
+        synced = await bot.tree.sync()
+        print(f"✅ Sync สำเร็จ! ({len(synced)} คำสั่ง)")
+        await interaction.response.send_message(
+            f"✅ Sync commands สำเร็จ! ({len(synced)} คำสั่ง)",
+            ephemeral=True
+        )
+    except Exception as e:
+        print(f"❌ Sync ไม่สำเร็จ: {e}")
+        await interaction.response.send_message(
+            f"❌ Sync ไม่สำเร็จ: {e}",
+            ephemeral=True
+        )
+
 
 if __name__ == "__main__":
     from myserver import run_server
