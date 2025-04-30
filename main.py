@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://dply.me/jt62qi\n\n"
+                                            "https://kravasigner.com/install?uuid=d11f05f3-a073-496b-a88a-0e3ccce3f340\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://dply.me/jt62qi\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://kravasigner.com/install?uuid=d11f05f3-a073-496b-a88a-0e3ccce3f340\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
@@ -639,31 +639,6 @@ class DailyView(View):
         super().__init__()
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
-
-@tasks.loop(seconds=60)  # ตรวจสอบทุก 60 วินาที
-async def check_tiktok_live():
-    TIKTOK_USERNAME = "dodeethailand"  # ชื่อผู้ใช้ TikTok ที่ต้องการตรวจสอบ
-    NOTIFICATION_CHANNEL_ID = 1201075584244129855  # ID ของช่อง Discord ที่จะแจ้งเตือน
-    channel = bot.get_channel(NOTIFICATION_CHANNEL_ID)
-    if not channel:
-        print("❌ ไม่พบช่องแจ้งเตือน")
-        return
-
-    async with aiohttp.ClientSession() as session:
-        try:
-            # ตัวอย่าง URL สำหรับตรวจสอบสถานะการไลฟ์ (ต้องปรับให้เหมาะสมกับ TikTok API หรือบริการที่ใช้)
-            url = f"https://www.tiktok.com/@{TIKTOK_USERNAME}/live"
-            async with session.get(url) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    if "LIVE" in html:  # ตรวจสอบคำว่า "LIVE" ใน HTML
-                        if not hasattr(bot, "tiktok_live_notified") or not bot.tiktok_live_notified:
-                            await channel.send(f"🔴 {TIKTOK_USERNAME} กำลังไลฟ์อยู่บน TikTok! ไปดูได้เลยที่ {url} @everyone")
-                            bot.tiktok_live_notified = True
-                    else:
-                        bot.tiktok_live_notified = False
-        except Exception as e:
-            print(f"❌ เกิดข้อผิดพลาดในการตรวจสอบ TikTok: {e}")
 
 @bot.event
 async def on_ready():
@@ -914,49 +889,6 @@ async def check_giveaway_winner():
                 print("✅ ล้างข้อมูลการแจกของรางวัลเรียบร้อยแล้ว")
         except Exception as e:
             print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
-
-import openai
-
-# ตั้งค่า OpenAI API Key
-openai.api_key = os.getenv("OPENAI_API_KEY")  # ใส่ API Key ของคุณในไฟล์ .env
-
-async def get_chatgpt_response(prompt):
-    """ส่งข้อความไปยัง ChatGPT และรับคำตอบ"""
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # หรือ "gpt-4" หากคุณมีสิทธิ์ใช้งาน
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            temperature=0.7,
-        )
-        return response['choices'][0]['message']['content'].strip()
-    except Exception as e:
-        print(f"❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ ChatGPT: {e}")
-        return "ขออภัย บอทไม่สามารถตอบกลับได้ในขณะนี้ 😔"
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    # ตรวจสอบว่าผู้ใช้แท็กบอท
-    if bot.user.mentioned_in(message):
-        prompt = message.content.replace(f"<@{bot.user.id}>", "").strip()  # ลบการแท็กบอทออกจากข้อความ
-        if prompt:
-            await message.channel.send("💬 กำลังคิดคำตอบ...")
-            response = await get_chatgpt_response(prompt)
-            await message.reply(response)
-
-    # ตรวจสอบว่าข้อความเป็นการตอบกลับข้อความของบอท
-    elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
-        prompt = message.content.strip()
-        if prompt:
-            await message.channel.send("💬 กำลังคิดคำตอบ...")
-            response = await get_chatgpt_response(prompt)
-            await message.reply(response)
-
-    await bot.process_commands(message)
-
 
 @bot.event
 async def on_ready():
