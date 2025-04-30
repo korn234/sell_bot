@@ -984,6 +984,93 @@ async def list_keys(interaction: discord.Interaction, type: str, duration: str):
     else:
         await interaction.response.send_message("❌ ไม่พบระยะเวลาที่ระบุ", ephemeral=True)
 
+@bot.tree.command(name="sendgame", description="ส่งตัวเกมให้ VIP/Super VIP (Admin only)")
+@app_commands.default_permissions(administrator=True)
+@commands.cooldown(1, 300, commands.BucketType.guild)  # เพิ่ม cooldown 5 นาที
+async def send_game(interaction: discord.Interaction):
+    try:
+        if not any(role.name == "Admin" for role in interaction.user.roles):
+            await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
+            return
+
+        allowed_role_ids = [1337637128410103882, 1364253774977175652]
+        game_info = """🎮 **ลิงก์ดาวน์โหลดตัวเกม**\n
+📱 **DNS กันดำ**
+https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n
+🎮 **ตัวเกม**
+https://kravasigner.com/install?uuid=fdf566c5-7324-4917-9ec8-cf84b9dac2d2\n
+🔑 **คีย์ทดสอบ**
+RoV
+V2.0\n
+📌 **หมายเหตุ:** ใช้งานได้เฉพาะสมาชิก VIP และ Super VIP เท่านั้น"""
+
+        await interaction.response.send_message("⌛ กำลังดำเนินการส่งตัวเกม...", ephemeral=True)
+
+        success_count = 0
+        failed_count = 0
+        
+        # รวบรวมสมาชิกที่มีสิทธิ์ก่อน
+        eligible_members = [
+            member for member in interaction.guild.members 
+            if any(role.id in allowed_role_ids for role in member.roles)
+        ]
+
+        # แบ่งการส่งเป็นกลุ่มๆ ละ 5 คน
+        chunk_size = 5
+        for i in range(0, len(eligible_members), chunk_size):
+            chunk = eligible_members[i:i + chunk_size]
+            
+            # ส่งข้อความพร้อมกันในแต่ละกลุ่ม
+            tasks = []
+            for member in chunk:
+                tasks.append(send_dm_with_retry(member, game_info))
+            
+            # รอให้การส่งในกลุ่มเสร็จสิ้น
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # นับผลลัพธ์
+            for result in results:
+                if result is True:
+                    success_count += 1
+                else:
+                    failed_count += 1
+            
+            # พักระหว่างกลุ่ม
+            await asyncio.sleep(2)
+
+        summary = f"✅ ส่งตัวเกมสำเร็จ: {success_count} คน\n❌ ไม่สำเร็จ: {failed_count} คน"
+        
+        # ส่งสรุปผลไปยังช่องแจ้งเตือน
+        try:
+            notification_channel = interaction.guild.get_channel(1357308234137866370)
+            if notification_channel:
+                embed = discord.Embed(
+                    title="📤 สรุปการส่งตัวเกม",
+                    description=summary,
+                    color=discord.Color.green()
+                )
+                await notification_channel.send(embed=embed)
+        except Exception as e:
+            print(f"ไม่สามารถส่งการแจ้งเตือน: {e}")
+
+        await interaction.followup.send(summary, ephemeral=True)
+
+    except Exception as e:
+        await interaction.followup.send(f"❌ เกิดข้อผิดพลาด: {str(e)}", ephemeral=True)
+
+async def send_dm_with_retry(member, content, max_retries=2):
+    """ฟังก์ชันส่ง DM พร้อมระบบ retry"""
+    for i in range(max_retries):
+        try:
+            dm_channel = await member.create_dm()
+            await dm_channel.send(content)
+            return True
+        except Exception as e:
+            if i == max_retries - 1:
+                print(f"❌ ไม่สามารถส่ง DM ให้ {member.name}: {e}")
+                return False
+            await asyncio.sleep(1)
+
 @bot.command(name="announce")
 @commands.has_role("Admin")
 async def text_announce(ctx, *, message):
