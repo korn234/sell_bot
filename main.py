@@ -774,7 +774,7 @@ async def post_messages():
         await season_channel.send(embed=embed2, view=SeasonView())
 
 # Task ลบข้อความและโพสต์ใหม่ทุก 3 นาที
-@tasks.loop(minutes=3)
+@tasks.loop(minutes=5)
 async def clear_and_post():
     await clear_channels()
     await post_messages()
@@ -1015,6 +1015,46 @@ async def slash_announce(interaction: discord.Interaction, message: str):
     )
     embed.set_footer(text=f"ประกาศโดย {interaction.user.name}")
     await interaction.response.send_message(embed=embed)
+
+class PersistentView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(CloseButton())  # เพิ่ม CloseButton ใน PersistentView
+
+# เพิ่ม PersistentView เพื่อให้ปุ่มสามารถใช้งานได้หลังจากรีสตาร์ท
+@bot.event
+async def on_ready():
+    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
+
+    # เพิ่ม Persistent View เพื่อให้ใช้งานปุ่มได้หลังจากรีสตาร์ท
+    bot.add_view(PersistentView())
+    for channel_id in active_views:
+        view = active_views[channel_id]
+        bot.add_view(view)
+
+    # เริ่มต้น Task ต่าง ๆ
+    check_giveaway_winner.start()
+    clear_and_post.start()
+
+# Restore active views ในช่องที่เคยสร้างไว้
+for guild in bot.guilds:
+    for channel in guild.text_channels:
+        if channel.name.startswith(("order-", "support-")):
+            view = PersistentView()
+            active_views[channel.id] = view
+            bot.add_view(view)
+            try:
+                async for message in channel.history(limit=100):
+                    if message.author == bot.user and hasattr(message, "components"):
+                        await message.edit(view=view)
+                        break
+            except Exception as e:
+                print(f"❌ ไม่สามารถ Restore view ใน {channel.name}: {e}")
 
 @bot.event
 async def on_message(message):
