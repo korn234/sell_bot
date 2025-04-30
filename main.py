@@ -151,23 +151,6 @@ def remove_used_key(duration, key):
     return False
 
 
-class CloseButton(discord.ui.Button):
-    def __init__(self):
-        super().__init__(label="❌ ปิดช่องแชท", style=discord.ButtonStyle.red, custom_id="close_button")
-
-    async def callback(self, interaction: discord.Interaction):
-        if isinstance(interaction.channel, discord.TextChannel):
-            await interaction.channel.delete()
-
-class PersistentView(View):
-    def __init__(self):
-        super().__init__(timeout=None)
-        self.add_item(CloseButton())
-
-# Store active views
-active_views = {}
-
-
 class ConfirmView(View):
 
     def __init__(self, price: int, duration: str):
@@ -187,9 +170,12 @@ class ConfirmView(View):
         else:
             self.status_message = await interaction.channel.send(embed=embed)
 
-    @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction,
-                      button: discord.ui.Button):
+    @discord.ui.button(
+        label="✅ ยืนยันการโอนเงิน",
+        style=discord.ButtonStyle.green,
+        custom_id="confirm_payment"
+    )
+    async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Create private channel
         overwrites = {
             interaction.guild.default_role:
@@ -243,17 +229,18 @@ class ConfirmView(View):
         embed.set_image(url=qr_url)
 
         # Create confirmation view
-        class ConfirmPaymentView(View):
-
+        class ConfirmPaymentView(discord.ui.View):
             def __init__(self, price, duration):
-                super().__init__()
+                super().__init__(timeout=None)  # Set timeout to None for persistence
                 self.price = price
                 self.duration = duration
 
-            @discord.ui.button(label="✅ ยืนยันการโอนเงิน",
-                               style=discord.ButtonStyle.green)
-            async def confirm_payment(self, interaction: discord.Interaction,
-                                      button: discord.ui.Button):
+            @discord.ui.button(
+                label="✅ ยืนยันการโอนเงิน",
+                style=discord.ButtonStyle.green,
+                custom_id="confirm_payment"
+            )
+            async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await self.view.update_status(interaction, "⌛ กำลังตรวจสอบการชำระเงิน...", discord.Color.gold())
                 # ตรวจสอบสลิปการโอนเงิน
                 def check_payment(message):
@@ -406,7 +393,11 @@ class ConfirmView(View):
                     await interaction.followup.send(
                         f"❌ เกิดข้อผิดพลาด: {str(e)}", ephemeral=True)
 
-            @discord.ui.button(label="❌ ยกเลิกการชำระเงิน", style=discord.ButtonStyle.red)
+            @discord.ui.button(
+                label="❌ ยกเลิกการชำระเงิน",
+                style=discord.ButtonStyle.red,
+                custom_id="cancel_payment"
+            )
             async def cancel_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await self.view.update_status(interaction, "🚫 ยกเลิกการทำรายการแล้ว", discord.Color.red())
                 await interaction.response.send_message("❌ ยกเลิกการชำระเงินแล้ว", ephemeral=True)
@@ -643,31 +634,34 @@ class DailyView(View):
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    check_tiktok_live.start()  # เริ่มต้น Task ตรวจสอบการไลฟ์
     try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-
-        # Add persistent view
-        bot.add_view(PersistentView())
-
-        # Restore views in active channels
+        # Register persistent views
+        bot.add_view(ConfirmPaymentView(0, ""))  # Add empty view for persistence
+        
+        # Restore views in existing channels
         for guild in bot.guilds:
             for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel) and channel.name.startswith(("order-", "support-")):
-                    view = PersistentView()
-                    active_views[channel.id] = view
+                if isinstance(channel, discord.TextChannel) and channel.name.startswith("order-"):
                     try:
                         async for message in channel.history(limit=100):
-                            if message.author == bot.user and "ช่องทางติดต่อแอดมิน" in message.content:
-                                await message.edit(view=view)
-                                break
-                    except discord.HTTPException:
-                        continue
-
+                            if message.author == bot.user and "รายละเอียดการสั่งซื้อ" in message.content:
+                                # Get price and duration from channel topic
+                                topic = channel.topic
+                                if topic:
+                                    price = int(topic.split(" - ")[1].split(" ")[0])
+                                    duration = topic.split(" - ")[0].split(": ")[1]
+                                    view = ConfirmPaymentView(price, duration)
+                                    view.add_item(CloseButton())
+                                    await message.edit(view=view)
+                    except Exception as e:
+                        print(f"Error restoring view in channel {channel.name}: {e}")
+                        
+        print("✅ Restored all persistent views")
     except Exception as e:
-        print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
+        print(f"❌ Error in on_ready: {e}")
 
+    # Start other tasks
+    check_giveaway_winner.start()
     clear_and_post.start()
 
 # ฟังก์ชันลบข้อความทั้งหมดก่อนโพสต์ใหม่
@@ -896,6 +890,7 @@ async def on_ready():
     bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
     clear_and_post.start()
+
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
