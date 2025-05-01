@@ -310,7 +310,7 @@ class ConfirmView(View):
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
 
-                            video_url_1 = "https://cdn.discordapp.com/attachments/1357266173435056169/1357385840484946122/7F0D9946-E139-4D0E-B7C8-FD67EF2825ED.mov?ex=67f00393&is=67eeb213&hm=2feb59c6e2ed4783f9be4c42e92bd0f5ec34615dc80b265adf838f969aa7681a&"
+                            video_url_1 = "https://cdn.discordapp.com/attachments/1301468241335681024/1367358302106816533/IMG_0300.MP4?ex=68144b27&is=6812f9a7&hm=c64bf66043f2605dbcf57dc3956abc566edd6050c7a61d7da7676dbfcc1d6280&"
                             video_url_2 = "https://cdn.discordapp.com/attachments/1357308234137866370/1357763650227535883/videoplayback.mp4?ex=67f16370&is=67f011f0&hm=105a9ded6c87d346fd5daad3d1004b891738dc5537d4101ab8465ab6e710fd56&"
 
                             product_embed = discord.Embed(
@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://kravasigner.com/install?uuid=b5e6f7fd-c516-41a1-809a-c5394ebc90dc\n\n"
+                                            "https://deploygate.com/distributions/a1a4a2fc0307afa6a8d419ac502fc46ad04e5da2\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://kravasigner.com/install?uuid=b5e6f7fd-c516-41a1-809a-c5394ebc90dc\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://deploygate.com/distributions/a1a4a2fc0307afa6a8d419ac502fc46ad04e5da2\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
