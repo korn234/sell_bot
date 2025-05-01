@@ -167,6 +167,20 @@ class PersistentView(View):
 # Store active views
 active_views = {}
 
+# เพิ่มตัวแปรเก็บยอดขาย ใส่ต่อจากการ import
+daily_sales = 0  # ยอดขายเริ่มต้น
+
+# เพิ่มฟังก์ชันอัพเดทยอดขาย
+async def update_sales(amount: int):
+    global daily_sales
+    daily_sales += amount
+
+# เพิ่มระบบรีเซ็ตยอดขายรายวัน
+@tasks.loop(hours=24)
+async def reset_daily_sales():
+    global daily_sales
+    daily_sales = 0
+    print("✅ รีเซ็ตยอดขายรายวันแล้ว")
 
 class ConfirmView(View):
 
@@ -263,6 +277,8 @@ class ConfirmView(View):
 
                 try:
                     payment_msg = await bot.wait_for('message', check=check_payment, timeout=300)
+                    # เมื่อมีการชำระเงิน อัพเดทยอดขาย
+                    await update_sales(self.price)
                     # มีรูปภาพถูกส่งมา ถือว่าชำระเงินแล้ว
                     await interaction.channel.send("✅ ตรวจสอบการชำระเงินเรียบร้อย")
                 except TimeoutError:
@@ -896,6 +912,7 @@ async def on_ready():
     bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
     check_giveaway_winner.start()
     clear_and_post.start()
+    reset_daily_sales.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
@@ -1061,7 +1078,7 @@ async def review(interaction: discord.Interaction, rating: int, comment: str = N
         icon_url=interaction.user.avatar.url
     )
     
-    review_channel = bot.get_channel(REVIEW_CHANNEL_ID)
+    review_channel = bot.get_channel(1337638812293267546)
     await review_channel.send(embed=embed)
     await interaction.response.send_message("✅ ขอบคุณสำหรับรีวิว!", ephemeral=True)
 
