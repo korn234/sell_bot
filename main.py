@@ -368,7 +368,7 @@ class ConfirmView(View):
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
 
-                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1367372692113854505/RPReplay_Final1746077407.mov?ex=6814588e&is=6813070e&hm=a23a8a6140021b73c2afe9fd724db50d3897a258fa41799ad43ae39c09ed6699&"
+                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1367422810288295936/RPReplay_Final1746089393.mov?ex=6814873b&is=681335bb&hm=0f2a532cd11c51ffbf6e51194641e675cdd0b0e9605c0966f9c9cf5d20650a7f&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
@@ -376,7 +376,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://dply.me/8wntbq\n\n"
+                                            "https://kravasigner.com/install?uuid=9feaad55-a17c-4269-8ae5-9ea880caaca8\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -631,7 +631,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://dply.me/8wntbq\n\n คีย์\nRoV\nV2.0 \nคลิปปสอนลง \nhttps://youtube.com/shorts/YdEABqjl3ns?si=IgNbxLjhyRpaX8f1"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://kravasigner.com/install?uuid=9feaad55-a17c-4269-8ae5-9ea880caaca8\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
