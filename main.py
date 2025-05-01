@@ -743,8 +743,8 @@ async def post_messages():
             ),
             color=0x2ecc71
         )
-        embed1.set_thumbnail(url="https://media.discordapp.net/attachments/1357027765794373642/1357330429429944493/New_Project_401_78BA78C.png")
-        embed1.set_footer(text="✨ เลือกแพ็คเกจด้านล่างเพื่อสั่งซื้อ", icon_url="https://media.discordapp.net/attachments/1357027765794373642/1357330429429944493/New_Project_401_78BA78C.png")
+        embed1.set_thumbnail(url="https://media.discordapp.net/attachments/1366823031309078558/1366823437066178703/IMG_0267.png?ex=68145345&is=681301c5&hm=116e894668c93ee880d0b513da19b49d48d5557e4c62e86facbaaecc038c6ca1&=&format=webp&quality=lossless&width=989&height=989")
+        embed1.set_footer(text="✨ เลือกแพ็คเกจด้านล่างเพื่อสั่งซื้อ", icon_url="https://media.discordapp.net/attachments/1366823031309078558/1366823437066178703/IMG_0267.png?ex=68145345&is=681301c5&hm=116e894668c93ee880d0b513da19b49d48d5557e4c62e86facbaaecc038c6ca1&=&format=webp&quality=lossless&width=989&height=989")
         await daily_channel.send(embed=embed1, view=DailyView())
 
     season_channel = bot.get_channel(SEASON_CHANNEL_ID)
@@ -769,8 +769,8 @@ async def post_messages():
             ),
             color=0x2ecc71
         )
-        embed2.set_thumbnail(url="https://media.discordapp.net/attachments/1302103738164449413/1357013189438472262/5009BB7F-C798-46C8-BAAF-BAE91B9D7D1A.jpg")
-        embed2.set_footer(text="✨ เลือกแพ็คเกจด้านล่างเพื่อสั่งซื้อ", icon_url="https://media.discordapp.net/attachments/1302103738164449413/1357013189438472262/5009BB7F-C798-46C8-BAAF-BAE91B9D7D1A.jpg")
+        embed2.set_thumbnail(url="https://media.discordapp.net/attachments/1302103738164449413/1366824081101553806/att.dB0srZ2U4rRKqjuiovORCx47MUCLGNJW1Bx81KiLbBU.jpg?ex=681453df&is=6813025f&hm=dd30a9b27ccfda00e3a1295c33551fe2ab84f94b27d9a7f9aba69227fc5934ee&=&format=webp&width=989&height=989")
+        embed2.set_footer(text="✨ เลือกแพ็คเกจด้านล่างเพื่อสั่งซื้อ", icon_url="https://media.discordapp.net/attachments/1302103738164449413/1366824081101553806/att.dB0srZ2U4rRKqjuiovORCx47MUCLGNJW1Bx81KiLbBU.jpg?ex=681453df&is=6813025f&hm=dd30a9b27ccfda00e3a1295c33551fe2ab84f94b27d9a7f9aba69227fc5934ee&=&format=webp&width=989&height=989")
         await season_channel.send(embed=embed2, view=SeasonView())
 
 # Task ลบข้อความและโพสต์ใหม่ทุก 3 นาที
