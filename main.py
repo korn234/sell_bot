@@ -352,7 +352,7 @@ class ConfirmView(View):
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
 
-                            video_url = "https://cdn.discordapp.com/attachments/1346020615798259722/1346020719317880863/RPReplay_Final1740986629.mov?ex=67ef897b&is=67ee37fb&hm=ca0890509058b8f4e666d6c35d003862a2adbd21307b9f8866c41f89d823702e&"
+                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1367372692113854505/RPReplay_Final1746077407.mov?ex=6814588e&is=6813070e&hm=a23a8a6140021b73c2afe9fd724db50d3897a258fa41799ad43ae39c09ed6699&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
@@ -360,7 +360,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://deploygate.com/distributions/a1a4a2fc0307afa6a8d419ac502fc46ad04e5da2\n\n"
+                                            "https://dply.me/8wntbq\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -453,8 +453,8 @@ class ConfirmView(View):
                     dm_channel = await interaction.user.create_dm()
 
                     await dm_channel.send("🌐 ลิงก์ช่วยเหลือ:\nhttps://khoindvn.io.vn/")
-                    await dm_channel.send("🎥 วิดีโอสอนโหลด:\nhttps://cdn.discordapp.com/attachments/1346021932927287357/1357951897348345916/80A99DB8-A7BC-4A0D-83B5-12D194B13AFC.mov")
-                    await dm_channel.send("🎥 วิดีโอใส่ cert + hack:\nhttps://cdn.discordapp.com/attachments/1346311435575234630/1357949291913543731/42CF403A-6293-4BDA-81A6-64C496D380AF.mov")
+                    await dm_channel.send("🎥 วิดีโอสอนโหลด:\nhttps://youtube.com/shorts/N_N1EGrzd7g?si=sSx3aWixDjGv674D")
+                    await dm_channel.send("🎥 วิดีโอใส่ cert + hack:\nhttps://youtube.com/shorts/G-8cYsEQnPg?si=L-MHd19qccRH5koO")
                 except Exception as e:
                     print(f"❌ ไม่สามารถส่งข้อมูลช่วยเหลือได้: {e}")
 
@@ -615,7 +615,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://deploygate.com/distributions/a1a4a2fc0307afa6a8d419ac502fc46ad04e5da2\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://dply.me/8wntbq\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
