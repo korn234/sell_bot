@@ -1016,6 +1016,77 @@ async def slash_announce(interaction: discord.Interaction, message: str):
     embed.set_footer(text=f"ประกาศโดย {interaction.user.name}")
     await interaction.response.send_message(embed=embed)
 
+@bot.tree.command(name="shop", description="ดูข้อมูลร้าน")
+async def shop_status(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="🏪 ข้อมูลร้าน",
+        description="ร้านขายโปร ROV iOS ",
+        color=discord.Color.gold()
+    )
+    
+    embed.add_field(
+        name="📊 สถิติร้าน",
+        value=f"👥 ลูกค้าทั้งหมด: {len(interaction.guild.members)}\n"
+              f"💰 ยอดขายวันนี้: {daily_sales} บาท\n"
+              f"⭐ คะแนนรีวิว: 4.9/5.0",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="⏰ เวลาทำการ",
+        value="เปิดทุกวัน 24 ชม.",
+        inline=True
+    )
+    
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/1366123564771835994/1367160525493899345/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=68143bb5&is=6812ea35&hm=7993be233d805b54f1b6cc3535b6a41fee01e69457ac43178dd33fbf180f05ef&=&format=webp&width=989&height=989")
+    embed.set_footer(text="อัพเดทล่าสุด")
+    
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="review", description="รีวิวสินค้า")
+@app_commands.describe(rating="คะแนน 1-5 ดาว", comment="ความคิดเห็นเพิ่มเติม")
+async def review(interaction: discord.Interaction, rating: int, comment: str = None):
+    if rating < 1 or rating > 5:
+        await interaction.response.send_message("❌ กรุณาให้คะแนน 1-5 ดาว", ephemeral=True)
+        return
+        
+    stars = "⭐" * rating
+    embed = discord.Embed(
+        title="📝 รีวิวจากลูกค้า",
+        description=f"{stars}\n\n{comment if comment else 'ไม่มีความคิดเห็นเพิ่มเติม'}",
+        color=discord.Color.green()
+    )
+    embed.set_author(
+        name=interaction.user.name,
+        icon_url=interaction.user.avatar.url
+    )
+    
+    review_channel = bot.get_channel(REVIEW_CHANNEL_ID)
+    await review_channel.send(embed=embed)
+    await interaction.response.send_message("✅ ขอบคุณสำหรับรีวิว!", ephemeral=True)
+
+@bot.tree.command(name="sync", description="Sync slash commands (Admin only)")
+async def sync(interaction: discord.Interaction):
+    if not any(role.name == "Admin" for role in interaction.user.roles):
+        await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
+        return
+        
+    try:
+        print("🔄 กำลัง Sync commands...")
+        synced = await bot.tree.sync()
+        print(f"✅ Sync สำเร็จ! ({len(synced)} คำสั่ง)")
+        await interaction.response.send_message(
+            f"✅ Sync commands สำเร็จ! ({len(synced)} คำสั่ง)",
+            ephemeral=True
+        )
+    except Exception as e:
+        print(f"❌ Sync ไม่สำเร็จ: {e}")
+        await interaction.response.send_message(
+            f"❌ Sync ไม่สำเร็จ: {e}",
+            ephemeral=True
+        )
+
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
