@@ -1112,8 +1112,72 @@ async def on_message(message):
     # ตรวจสอบข้อความในช่องที่ระบุ
     if message.channel.id == 1367747079253786715:
         if message.content == ".":
+            embed = discord.Embed(
+                title="🎮 ดาวน์โหลดเกม ROV iOS",
+                description=(
+                    "# 📱 ลิงก์ดาวน์โหลด\n"
+                    "> **โปรดเลือก 1 ลิงก์เท่านั้น**\n\n"
+                    "```ini\n"
+                    "[ลิงก์ที่ 1 - แนะนำ]\n"
+                    "https://i.diawi.com/NLUNhu\n\n"
+                    "[ลิงก์ที่ 2 - สำรอง]\n"
+                    "https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0\n"
+                    "```\n\n"
+                    "# 🔑 คีย์ใช้งาน\n"
+                    "```css\n"
+                    "บน  : RoV\n"
+                    "ล่าง : V2.0\n"
+                    "```\n\n"
+                    "# ⚠️ คำแนะนำ\n"
+                    "> 📌 ต้องติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
+                    "> 🔰 รับประกันความปลอดภัย 100%\n"
+                    "> 📱 รองรับ iOS 15 ขึ้นไป\n"
+                    "> ⚡ อัพเดทล่าสุด: 27/04/2568"
+                ),
+                color=0x2ecc71  # สีเขียว
+            )
+            
+            # เพิ่มรูปภาพสวยๆ
+            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1366123564771835994/1367160525493899345/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg")
+            
+            # เพิ่มปุ่มกด
+            class DownloadView(discord.ui.View):
+                def __init__(self):
+                    super().__init__(timeout=None)
+                
+                @discord.ui.button(label="📥 DNS", style=discord.ButtonStyle.green)
+                async def download(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    await interaction.response.send_message(
+                        "✅ ลิงก์ดาวน์โหลด: https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", 
+                        ephemeral=True
+                    )
+                
+                @discord.ui.button(label="❓ วิธีติดตั้ง", style=discord.ButtonStyle.primary)
+                async def guide(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    guide_embed = discord.Embed(
+                        title="📝 วิธีการติดตั้ง",
+                        description=(
+                            "**ขั้นตอนที่ 1: ติดตั้ง DNS สำหรับคนที่ไม่เคยติดตั้ง**\n"
+                            "> 1. เปิดลิงก์ DNS\n"
+                            "> 2. กดติดตั้ง Profile\n"
+                            "> 3. ตั้งค่า > ทั่วไป > VPN & DNS\n"
+                            "> 4. ติดตั้งยืนยัน DNS\n\n"
+                            "**ขั้นตอนที่ 2: ติดตั้งเกม**\n"
+                            "> 1. เปิดลิงก์ดาวน์โหลด\n"
+                            "> 2. กดติดตั้ง\n"
+                            "> 3. รอติดตั้งเสร็จ\n\n"
+                            "**ขั้นตอนที่ 3: เริ่มใช้งาน**\n"
+                            "> 1. เปิดเกม\n"
+                            "> 2. ใส่คีย์ที่ได้รับ\n"
+                            "> 3. เริ่มเล่นได้เลย!"
+                        ),
+                        color=0x3498db
+                    )
+                    await interaction.response.send_message(embed=guide_embed, ephemeral=True)
+
+            # ส่งข้อความพร้อมปุ่ม
             try:
-                await message.reply("เลือกแค่ 1 ลิ้งนะครับ\n 1) https://i.diawi.com/NLUNhu\n 2) https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0 \nคีย์ใช้งาน\nบน RoV \nล่างV2.0")
+                await message.reply(embed=embed, view=DownloadView())
             except discord.HTTPException as e:
                 print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
 
