@@ -1113,7 +1113,7 @@ async def on_message(message):
     if message.channel.id == 1367747079253786715:
         if message.content == ".":
             try:
-                await message.reply("https://i.diawi.com/NLUNhu")
+                await message.reply("เลือกแค่ 1 ลิ้งนะครับ\n 1) https://i.diawi.com/NLUNhu\n 2) https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0")
             except discord.HTTPException as e:
                 print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
 
