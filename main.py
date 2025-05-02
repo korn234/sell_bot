@@ -376,7 +376,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://i.diawi.com/pUVF4D\n\n"
+                                            "https://i.diawi.com/NLUNhu\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -631,7 +631,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://i.diawi.com/pUVF4D\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://i.diawi.com/NLUNhu\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
