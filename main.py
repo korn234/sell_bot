@@ -1144,8 +1144,15 @@ async def on_message(message):
             class DownloadView(discord.ui.View):
                 def __init__(self):
                     super().__init__(timeout=None)
-                
-                @discord.ui.button(label="📥 DNS", style=discord.ButtonStyle.green)
+
+                @discord.ui.button(label="📥 ดาวน์โหลดเกม", style=discord.ButtonStyle.green)
+                async def download(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    await interaction.response.send_message(
+                        "✅ ลิงก์ดาวน์โหลด1: https://i.diawi.com/NLUNhu\n ✅ ลิงก์ดาวน์โหลด2: https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0", 
+                        ephemeral=True
+                    )
+                              
+                @discord.ui.button(label="📥 DNS", style=discord.ButtonStyle.blue)
                 async def download(self, interaction: discord.Interaction, button: discord.ui.Button):
                     await interaction.response.send_message(
                         "✅ ลิงก์ดาวน์โหลด: https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", 
