@@ -1109,9 +1109,15 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    await bot.process_commands(message)
+    # ตรวจสอบข้อความในช่องที่ระบุ
+    if message.channel.id == 1367747079253786715:
+        if message.content == ".":
+            try:
+                await message.reply("https://i.diawi.com/NLUNhu")
+            except discord.HTTPException as e:
+                print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
 
-    # ระบบตอบคำถามอัตโนมัติ
+    # ระบบตอบคำถามอัตโนมัติ (existing code)
     faq = {
         "วิธีติดตั้ง": "📱 วิธีติดตั้ง:\n1. ติดตั้ง DNS\n2. ติดตั้งแอพ\n3. ใส่คีย์ที่ได้รับ",
         "ช่องทางชำระเงิน": "💳 ช่องทางชำระเงิน:\n- True Wallet\n- โอนผ่านธนาคาร",
@@ -1126,7 +1132,6 @@ async def on_message(message):
             break
 
     await bot.process_commands(message)
-
 if __name__ == "__main__":
     from myserver import run_server
     import threading
