@@ -1133,13 +1133,21 @@ async def on_message(message):
                     def __init__(self):
                         super().__init__()
                         
-                        # ปุ่มดาวน์โหลดเกม
-                        game_button = discord.ui.Button(
-                            label="📱 ดาวน์โหลดเกม",
+                        # ปุ่มดาวน์โหลดเกมลิงก์ที่ 1
+                        game_button1 = discord.ui.Button(
+                            label="📱 ดาวน์โหลดเกม (ลิงก์ 1)",
                             url="https://i.diawi.com/NLUNhu",
                             style=discord.ButtonStyle.url
                         )
-                        self.add_item(game_button)
+                        self.add_item(game_button1)
+                        
+                        # ปุ่มดาวน์โหลดเกมลิงก์ที่ 2
+                        game_button2 = discord.ui.Button(
+                            label="📱 ดาวน์โหลดเกม (ลิงก์ 2)", 
+                            url="https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0",
+                            style=discord.ButtonStyle.url
+                        )
+                        self.add_item(game_button2)
                         
                         # ปุ่มดาวน์โหลด DNS
                         dns_button = discord.ui.Button(
@@ -1174,9 +1182,6 @@ async def on_message(message):
                 
             except discord.HTTPException as e:
                 print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
-
-    # ระบบตอบคำถามอัตโนมัติ (existing code)
-    await bot.process_commands(message)
 
     # ระบบตอบคำถามอัตโนมัติ (existing code)
     faq = {
