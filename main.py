@@ -1138,7 +1138,7 @@ async def on_message(message):
             )
             
             # เพิ่มรูปภาพสวยๆ
-            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1366123564771835994/1367160525493899345/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg")
+            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1367762568558411776/IMG_7980.jpg?ex=6815c3a8&is=68147228&hm=be2228301a2fa6a01620584acbf1bd5604582d7eb19838fdb20b1f2097f1c229&")
             
             # เพิ่มปุ่มกด
             class DownloadView(discord.ui.View):
