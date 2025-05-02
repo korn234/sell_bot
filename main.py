@@ -1152,7 +1152,7 @@ async def on_message(message):
                         ephemeral=True
                     )
                               
-                @discord.ui.button(label="📥 DNS", style=discord.ButtonStyle.blue)
+                @discord.ui.button(label="📥 DNS", style=discord.ButtonStyle.danger)
                 async def download(self, interaction: discord.Interaction, button: discord.ui.Button):
                     await interaction.response.send_message(
                         "✅ ลิงก์ดาวน์โหลด: https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", 
