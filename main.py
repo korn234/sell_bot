@@ -64,9 +64,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # จับคู่ QR และเบอร์โทร 1:1
 # Format: (QR URL, Phone number, probability weight)
 SEASON_PAYMENT_OPTIONS = [
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 90),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 0),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg?ex=67f5241f&is=67f3d29f&hm=919cdde082227255e674acea218d36bb904c1e92b93b5cdb0f9e66dbd1112654&=&format=webp&width=456&height=988", "094-338-9674", 10)
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 60),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 10),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg?ex=67f5241f&is=67f3d29f&hm=919cdde082227255e674acea218d36bb904c1e92b93b5cdb0f9e66dbd1112654&=&format=webp&width=456&height=988", "094-338-9674", 30)
 ]
 
 DAILY_PAYMENT_PAIRS = {
@@ -368,7 +368,7 @@ class ConfirmView(View):
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
 
-                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1367422810288295936/RPReplay_Final1746089393.mov?ex=6814873b&is=681335bb&hm=0f2a532cd11c51ffbf6e51194641e675cdd0b0e9605c0966f9c9cf5d20650a7f&"
+                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1368109147593375797/RPReplay_Final1746252952.mov?ex=6817066f&is=6815b4ef&hm=d8eb438fe6f88cd151cea4a9bbe8ffc207f80c1de44fcbca18e511168d9eeeef&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
@@ -376,7 +376,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://i.diawi.com/NLUNhu\n\n"
+                                            "https://i.diawi.com/h714XM\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -631,7 +631,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://i.diawi.com/NLUNhu\n\n คีย์\nRoV\nV2.0"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://i.diawi.com/h714XM\n\n คีย์\nDoDEE"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
@@ -1117,17 +1117,17 @@ async def on_message(message):
                         "> 🛡️ ระบบป้องกันการแบนขั้นสูง\n"
                         "> ⚡ เล่นได้ทุกโหมด\n\n"
                         "# 🔑 คีย์ใช้งาน\n"
-                        "```\nบน : RoV\nล่าง : V2.0\n```\n\n"
+                        "```\n DoDEE \n```\n\n"
                         "# ⚠️ คำแนะนำ\n"
                         "> 📌 ติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
                         "> 🔰 รับประกันความปลอดภัย 100%\n"
                         "> 📱 รองรับ iOS 15 ขึ้นไป\n"
-                        "> ⚡ อัพเดทล่าสุด: 27/04/2568"
+                        "> ⚡ อัพเดทล่าสุด: 03/05/2568"
                     ),
                     color=0x2ecc71
                 )
                 
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1367762568558411776/IMG_7980.jpg")
+                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1368106455525363743/IMG_8041.jpg?ex=681703ed&is=6815b26d&hm=bf9d25bac35d73a95e375356601d04770ffd0f95835b70d51cd025ae19bc429a&format=webp&width=814&height=814")
                 
                 class DownloadView(discord.ui.View):
                     def __init__(self):
@@ -1136,7 +1136,7 @@ async def on_message(message):
                         # ปุ่มดาวน์โหลดเกมลิงก์ที่ 1
                         game_button1 = discord.ui.Button(
                             label="📱 ดาวน์โหลดเกม (ลิงก์ 1)",
-                            url="https://i.diawi.com/NLUNhu",
+                            url="https://i.diawi.com/h714XM",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(game_button1)
@@ -1144,10 +1144,18 @@ async def on_message(message):
                         # ปุ่มดาวน์โหลดเกมลิงก์ที่ 2
                         game_button2 = discord.ui.Button(
                             label="📱 ดาวน์โหลดเกม (ลิงก์ 2)", 
-                            url="https://kravasigner.com/install?uuid=6e02556c-398b-40ab-8635-6f8d1a43ebe0",
+                            url="https://kravasigner.com/install?uuid=a2db40b4-dad7-4e57-9eab-253d44c807e2",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(game_button2)
+
+                        #ปุ่มดาวน์โหลดเกมลิงค์ที่ 3
+                        game_button3 = discord.ui.Button(
+                            label="📱 ดาวน์โหลดเกม (ลิงก์ 3)",
+                            url="https://drive.google.com/file/d/1zme240GygwAsS1NDLSJNxbvpm3LX2m0a/view?usp=drivesdk",
+                            style=discord.ButtonStyle.url
+                        )
+                        self.add_item(game_button3)
                         
                         # ปุ่มดาวน์โหลด DNS
                         dns_button = discord.ui.Button(
