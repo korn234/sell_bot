@@ -183,7 +183,6 @@ async def reset_daily_sales():
     print("✅ รีเซ็ตยอดขายรายวันแล้ว")
 
 class ConfirmView(View):
-
     def __init__(self, price: int, duration: str):
         super().__init__()
         self.price = price
@@ -196,10 +195,18 @@ class ConfirmView(View):
             description=status,
             color=color
         )
-        if self.status_message:
-            await self.status_message.edit(embed=embed)
-        else:
-            self.status_message = await interaction.channel.send(embed=embed)
+        
+        try:
+            if self.status_message:
+                await self.status_message.edit(embed=embed)
+            else:
+                self.status_message = await interaction.channel.send(embed=embed)
+        except Exception as e:
+            # ถ้าไม่สามารถแก้ไขข้อความเดิมได้ ให้ส่งข้อความใหม่
+            try:
+                self.status_message = await interaction.channel.send(embed=embed)
+            except Exception as e:
+                print(f"❌ ไม่สามารถส่งข้อความสถานะได้: {e}")
 
     @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction,
@@ -826,24 +833,35 @@ def load_giveaway_data():
 # โหลดข้อมูลการแจกของรางวัลเมื่อเริ่มต้น
 giveaway_data = load_giveaway_data()
 
+# แก้ไขคำสั่ง giveaway
 @bot.tree.command(name="giveaway", description="Start a giveaway")
-@app_commands.describe(name="The name of the giveaway", duration="Duration in seconds")
+@app_commands.describe(
+    name="The name of the giveaway",
+    duration="Duration in seconds"
+)
 async def giveaway(interaction: Interaction, name: str, duration: int):
     participants = []
     end_time = datetime.now(pytz.utc) + timedelta(seconds=duration)
     thai_tz = pytz.timezone("Asia/Bangkok")
     end_time_thai = end_time.astimezone(thai_tz)
 
-    giveaway_data["name"] = name
-    giveaway_data["end_time"] = end_time.isoformat()
-    giveaway_data["participants"] = participants
-    save_giveaway_data(giveaway_data)
+    # บันทึกข้อมูล giveaway ใหม่
+    new_giveaway_data = {
+        "name": name,
+        "end_time": end_time.isoformat(),
+        "participants": participants,
+        "completed": False  # เพิ่มสถานะการประกาศผล
+    }
+    save_giveaway_data(new_giveaway_data)
 
-    view = GiveawayView(participants, giveaway_data)
+    view = GiveawayView(participants, new_giveaway_data)
     await interaction.response.send_message(
         embed=Embed(
             title=f"🎉 {name} Giveaway 🎉",
-            description=f"กดปุ่มเพื่อเข้าร่วม\nสิ้นสุดเวลา: {end_time_thai.strftime('%H:%M:%S')} (เวลาไทย)",
+            description=(
+                f"กดปุ่มเพื่อเข้าร่วม\n"
+                f"สิ้นสุดเวลา: {end_time_thai.strftime('%H:%M:%S')} (เวลาไทย)"
+            ),
             color=0x00FF00,
         ),
         view=view
@@ -901,41 +919,39 @@ class GiveawayView(View):
         super().__init__(timeout=None)
         self.add_item(JoinButton(participants, giveaway_data))
 
-@tasks.loop(seconds=10)  # ตรวจสอบทุก 10 วินาที
+# แก้ไขฟังก์ชัน check_giveaway_winner
+@tasks.loop(seconds=10)
 async def check_giveaway_winner():
-    if "end_time" in giveaway_data:
-        try:
-            # แปลงเวลาสิ้นสุดจาก ISO format
+    try:
+        giveaway_data = load_giveaway_data()  # โหลดข้อมูลทุกครั้งที่เช็ค
+        
+        if "end_time" in giveaway_data:
             end_time = datetime.fromisoformat(giveaway_data["end_time"])
             current_time = datetime.now(pytz.utc)
-            print(f"🔍 Debug: Current time: {current_time}, End time: {end_time}")
-
-            if current_time >= end_time:
+            
+            if current_time >= end_time and not giveaway_data.get("completed", False):  # เพิ่มการเช็คว่าประกาศไปแล้วหรือยัง
                 participants = giveaway_data.get("participants", [])
-                channel = bot.get_channel(1364857076911833159)  # ใส่ ID ของช่องที่ต้องการประกาศ
-                print(f"🔍 Debug: Participants: {participants}, Channel: {channel}")
-
-                if channel:
-                    if participants:
-                        # เลือกผู้ชนะ
-                        winner_id = random.choice(participants)
-                        await channel.send(
-                            f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!"
-                        )
-                        print(f"🎉 ประกาศผู้ชนะ: {winner_id}")
-                    else:
-                        # ไม่มีผู้เข้าร่วม
-                        await channel.send(
-                            f"❌ ไม่มีใครเข้าร่วม **{giveaway_data['name']} Giveaway**. ลองใหม่ครั้งหน้า!"
-                        )
-                        print("❌ ไม่มีผู้เข้าร่วมการแจกของรางวัล")
-
-                # ล้างข้อมูลการแจกของรางวัล
-                giveaway_data.clear()
-                save_giveaway_data(giveaway_data)
-                print("✅ ล้างข้อมูลการแจกของรางวัลเรียบร้อยแล้ว")
-        except Exception as e:
-            print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
+                channel = bot.get_channel(1364857076911833159)
+                
+                if channel and participants:
+                    winner_id = random.choice(participants)
+                    await channel.send(
+                        f"🎉 ยินดีด้วย <@{winner_id}>! คุณได้รับของรางวัล **{giveaway_data['name']} Giveaway**!"
+                    )
+                    
+                    # เพิ่มสถานะว่าประกาศผลแล้ว
+                    giveaway_data["completed"] = True
+                    save_giveaway_data(giveaway_data)
+                    
+                elif channel:
+                    await channel.send(
+                        f"❌ ไม่มีใครเข้าร่วม **{giveaway_data['name']} Giveaway**"
+                    )
+                    giveaway_data.clear()
+                    save_giveaway_data(giveaway_data)
+                    
+    except Exception as e:
+        print(f"❌ เกิดข้อผิดพลาดใน check_giveaway_winner: {e}")
 
 @bot.event
 async def on_ready():
@@ -1207,7 +1223,7 @@ async def on_message(message):
                         #วิดิโอสอนโหลด
                         video_howtoload = discord.ui.Button(
                             label="⚒️ วิดิโอสอนโหลด",
-                            url="https://cdn.discordapp.com/attachments/1301468241335681024/1368127106927558687/d1a97a74-d9dd-4f78-b55b-84bd19c24d49_transcode-out.mov?ex=68171728&is=6815c5a8&hm=7da2c5defe0b1238b0c7a43ca440e9a7658050215624d7b4a6d7a8efc9a6daa3&",
+                            url="https://youtube.com/shorts/NoHAxik3Ilo?si=A_5FPbUJHc8wwzbt",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(video_howtoload)
