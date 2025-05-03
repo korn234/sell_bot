@@ -368,7 +368,7 @@ class ConfirmView(View):
                             else:
                                 print(f"❌ ไม่สามารถลบคีย์ {key} สำหรับ {self.duration} ได้")
 
-                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1368109147593375797/RPReplay_Final1746252952.mov?ex=6817066f&is=6815b4ef&hm=d8eb438fe6f88cd151cea4a9bbe8ffc207f80c1de44fcbca18e511168d9eeeef&"
+                            video_url = "https://cdn.discordapp.com/attachments/1301468241335681024/1368127106927558687/d1a97a74-d9dd-4f78-b55b-84bd19c24d49_transcode-out.mov?ex=68171728&is=6815c5a8&hm=7da2c5defe0b1238b0c7a43ca440e9a7658050215624d7b4a6d7a8efc9a6daa3&"
 
                             product_embed = discord.Embed(
                                 title="🎮 รายละเอียดสินค้า",
@@ -1172,6 +1172,35 @@ async def on_message(message):
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(extra_button)
+
+                        #วิดิโอสอนโหลด
+                        video_howtoload = discord.ui.Button(
+                            label="⚒️ วิดิโอสอนโหลด",
+                            url="https://cdn.discordapp.com/attachments/1301468241335681024/1368127106927558687/d1a97a74-d9dd-4f78-b55b-84bd19c24d49_transcode-out.mov?ex=68171728&is=6815c5a8&hm=7da2c5defe0b1238b0c7a43ca440e9a7658050215624d7b4a6d7a8efc9a6daa3&",
+                            style=discord.ButtonStyle.url
+                        )
+                        self.add_item(video_howtoload)
+                                                # ปุ่มวิธีติดตั้ง
+                        @discord.ui.button(label="📖 วิธีติดตั้ง", style=discord.ButtonStyle.primary)
+                        async def guide(self, interaction: discord.Interaction, button: discord.ui.Button):
+                            await interaction.response.send_message(
+                                "📝 **วิธีการติดตั้ง**\n\n"
+                                "**ขั้นตอนที่ 1: ติดตั้ง DNS**\n"
+                                "1. เปิดลิงก์ DNS\n"
+                                "2. กดติดตั้ง Profile\n"
+                                "3. ตั้งค่า > ทั่วไป > VPN & DNS\n"
+                                "4. เปิดใช้งาน DNS\n\n"
+                                "**ขั้นตอนที่ 2: ติดตั้งเกม**\n"
+                                "1. เปิดลิงก์ดาวน์โหลด\n" 
+                                "2. กด Install/ติดตั้ง\n"
+                                "3. รอจนติดตั้งเสร็จ\n\n"
+                                "**ขั้นตอนที่ 3: เริ่มใช้งาน**\n"
+                                "1. เปิดเกมที่ติดตั้ง\n"
+                                "2. ใส่คีย์ RoV / V2.0\n"
+                                "3. เริ่มเล่นได้เลย!",
+                                ephemeral=True
+                            )
+
                 await message.reply(embed=embed, view=DownloadView())
                 
             except discord.HTTPException as e:
