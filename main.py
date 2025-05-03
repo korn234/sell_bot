@@ -1164,6 +1164,14 @@ async def on_message(message):
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(dns_button)
+
+                        #ไฟล์ทรัพยากร
+                        extra_button = discord.ui.Button(
+                            label="🪄 ไฟล์ Extra",
+                            url="https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view?usp=drivesdk",
+                            style=discord.ButtonStyle.url
+                        )
+                        self.add_item(extra_button)
                         
                         # ปุ่มวิธีติดตั้ง
                         @discord.ui.button(label="📖 วิธีติดตั้ง", style=discord.ButtonStyle.primary)
