@@ -851,19 +851,50 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
     # Create the "Join Giveaway" button
 class JoinButton(Button):
     def __init__(self, participants, giveaway_data):
-        super().__init__(label="Join Giveaway", style=ButtonStyle.green, custom_id="join_giveaway_button")
+        super().__init__(label="🎉 เข้าร่วมกิจกรรม", style=ButtonStyle.success, custom_id="join_giveaway")
         self.participants = participants
         self.giveaway_data = giveaway_data
 
-    async def callback(self, button_interaction: Interaction):
-        if button_interaction.user.id not in self.participants:
-            self.participants.append(button_interaction.user.id)
-            self.giveaway_data["participants"] = self.participants
-            save_giveaway_data(self.giveaway_data)
-            await button_interaction.response.send_message("You have joined the giveaway!", ephemeral=True)
-        else:
-            await button_interaction.response.send_message("You are already in the giveaway!", ephemeral=True)
+    async def callback(self, interaction: Interaction):
+        try:
+            # ตรวจสอบว่าผู้ใช้เข้าร่วมแล้วหรือยัง
+            if interaction.user.id not in self.participants:
+                # เพิ่มผู้เข้าร่วม
+                self.participants.append(interaction.user.id)
+                self.giveaway_data["participants"] = self.participants
+                save_giveaway_data(self.giveaway_data)
+                
+                try:
+                    await interaction.response.send_message(
+                        "✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!",
+                        ephemeral=True
+                    )
+                except discord.errors.InteractionResponded:
+                    await interaction.followup.send(
+                        "✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!",
+                        ephemeral=True
+                    )
+            else:
+                try:
+                    await interaction.response.send_message(
+                        "❌ คุณได้เข้าร่วมกิจกรรมไปแล้ว!",
+                        ephemeral=True
+                    )
+                except discord.errors.InteractionResponded:
+                    await interaction.followup.send(
+                        "❌ คุณได้เข้าร่วมกิจกรรมไปแล้ว!",
+                        ephemeral=True
+                    )
 
+        except Exception as e:
+            print(f"เกิดข้อผิดพลาด: {e}")
+            try:
+                await interaction.response.send_message(
+                    "❌ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+                    ephemeral=True
+                )
+            except:
+                pass
 
 class GiveawayView(View):
     def __init__(self, participants, giveaway_data):
