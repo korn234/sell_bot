@@ -1151,7 +1151,7 @@ async def on_message(message):
 
                         #ปุ่มดาวน์โหลดเกมลิงค์ที่ 3
                         game_button3 = discord.ui.Button(
-                            label="📱 ดาวน์โหลดเกม (Esign)",
+                            label="📱 ดาวน์โหลดเกม (Esign,Gbox)",
                             url="https://drive.google.com/file/d/1zme240GygwAsS1NDLSJNxbvpm3LX2m0a/view?usp=drivesdk",
                             style=discord.ButtonStyle.url
                         )
