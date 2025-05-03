@@ -1,6 +1,10 @@
 {
-    "name": "",
+    "prize": "",
     "end_time": "",
+    "winners": 1,
     "participants": [],
-    "completed": false
+    "ended": false,
+    "channel_id": null,
+    "message_id": null,
+    "active": false
 }
