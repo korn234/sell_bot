@@ -666,32 +666,22 @@ class DailyView(View):
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    check_tiktok_live.start()  # เริ่มต้น Task ตรวจสอบการไลฟ์
+# โหลดข้อมูล giveaway
+    giveaway_data = load_giveaway_data()
+    
+    # เพิ่ม view
+    bot.add_view(GiveawayView(giveaway_data))
+    
+    # เริ่ม tasks
+    check_giveaway.start()
+    clear_and_post.start()
+    reset_daily_sales.start()
+    
     try:
         synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} command(s)")
-
-        # Add persistent view
-        bot.add_view(PersistentView())
-
-        # Restore views in active channels
-        for guild in bot.guilds:
-            for channel in guild.channels:
-                if isinstance(channel, discord.TextChannel) and channel.name.startswith(("order-", "support-")):
-                    view = PersistentView()
-                    active_views[channel.id] = view
-                    try:
-                        async for message in channel.history(limit=100):
-                            if message.author == bot.user and "ช่องทางติดต่อแอดมิน" in message.content:
-                                await message.edit(view=view)
-                                break
-                    except discord.HTTPException:
-                        continue
-
+        print(f"✅ Sync {len(synced)} command(s)")
     except Exception as e:
-        print(f"เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
-
-    clear_and_post.start()
+        print(f"❌ เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
 
 # ฟังก์ชันลบข้อความทั้งหมดก่อนโพสต์ใหม่
 async def clear_channels():
@@ -997,14 +987,6 @@ async def check_giveaway():
     except Exception as e:
         print(f"Error in check_giveaway: {e}")
 
-
-@bot.event
-async def on_ready():
-    print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-    bot.add_view(GiveawayView([], giveaway_data))  # Provide empty participants and giveaway_data
-    check_giveaway.start()
-    clear_and_post.start()
-    reset_daily_sales.start()
 @bot.tree.command(name="add", description="เพิ่มคีย์ใหม่ (Admin only)")
 @app_commands.choices(type=[
     app_commands.Choice(name="Day", value="day"),
