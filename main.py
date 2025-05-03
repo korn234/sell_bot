@@ -837,7 +837,7 @@ def load_giveaway_data():
 class GiveawayButton(discord.ui.Button):
     def __init__(self, giveaway_data: dict):
         super().__init__(
-            label="🎉 เข้าร่วมกิจกรรม",
+            label="🎉 เข้าร่วมกิจกรรม", 
             style=discord.ButtonStyle.success,
             custom_id="join_giveaway"
         )
@@ -845,29 +845,42 @@ class GiveawayButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if self.giveaway_data.get("ended", False):
-            await interaction.response.send_message(
-                "❌ กิจกรรมนี้จบไปแล้ว!",
-                ephemeral=True
-            )
+            await interaction.response.send_message("❌ กิจกรรมนี้จบไปแล้ว!", ephemeral=True)
             return
 
         if interaction.user.id in self.giveaway_data.get("participants", []):
-            await interaction.response.send_message(
-                "❌ คุณได้เข้าร่วมกิจกรรมไปแล้ว!",
-                ephemeral=True
-            )
+            await interaction.response.send_message("❌ คุณได้เข้าร่วมกิจกรรมไปแล้ว!", ephemeral=True)
             return
 
-        # Add participant
+        # เพิ่มผู้เข้าร่วม
         if "participants" not in self.giveaway_data:
             self.giveaway_data["participants"] = []
         self.giveaway_data["participants"].append(interaction.user.id)
         save_giveaway_data(self.giveaway_data)
 
-        await interaction.response.send_message(
-            "✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!",
-            ephemeral=True
-        )
+        # อัพเดทข้อความ Embed
+        try:
+            message = await interaction.channel.fetch_message(self.giveaway_data["message_id"])
+            embed = message.embeds[0]
+            
+            # แยกข้อความเป็นส่วนๆ
+            parts = embed.description.split("\n")
+            
+            # อัพเดทจำนวนผู้เข้าร่วม
+            for i, line in enumerate(parts):
+                if "👥 ผู้เข้าร่วม:" in line:
+                    parts[i] = f"# 👥 ผู้เข้าร่วม: {len(self.giveaway_data['participants'])} คน"
+                    break
+                    
+            # รวมข้อความกลับ
+            embed.description = "\n".join(parts)
+            await message.edit(embed=embed)
+            
+            await interaction.response.send_message("✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!", ephemeral=True)
+            
+        except Exception as e:
+            print(f"Error updating giveaway message: {e}")
+            await interaction.response.send_message("✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!", ephemeral=True)
 
 class GiveawayView(discord.ui.View):
     def __init__(self, giveaway_data: dict):
@@ -885,11 +898,12 @@ async def giveaway(interaction: discord.Interaction, prize: str, duration: int, 
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
 
-    # Set up giveaway data
+    # ตั้งค่าเวลา
     thai_tz = pytz.timezone('Asia/Bangkok')
     start_time = datetime.now(thai_tz)
     end_time = start_time + timedelta(minutes=duration)
 
+    # เตรียมข้อมูล
     giveaway_data = {
         "prize": prize,
         "end_time": end_time.isoformat(),
@@ -900,32 +914,105 @@ async def giveaway(interaction: discord.Interaction, prize: str, duration: int, 
         "message_id": None
     }
 
-    # Create embed
+    # สร้าง Embed แบบสวยงาม
     embed = discord.Embed(
-        title="🎉 GIVEAWAY 🎉",
+        title="```🎉 GIVEAWAY TIME! 🎉```",
         description=(
-            f"# 🎁 ของรางวัล: {prize}\n\n"
-            f"# ⏰ เวลา\n"
-            f"> เริ่ม: {start_time.strftime('%H:%M:%S')} น.\n"
-            f"> สิ้นสุด: {end_time.strftime('%H:%M:%S')} น.\n"
-            f"> วันที่: {end_time.strftime('%d/%m/%Y')}\n\n"
-            f"# 👥 ผู้เข้าร่วม: 0 คน\n"
-            f"# 🏆 ผู้ชนะ: {winners} คน\n\n"
-            "```กดปุ่ม 🎉 ด้านล่างเพื่อเข้าร่วม```"
+            f"# 🎁 รางวัล: __{prize}__\n\n"
+            "# ⏰ กำหนดการ\n"
+            f"> 📅 วันที่: {end_time.strftime('%d/%m/%Y')}\n"
+            f"> ⌚ เริ่ม: {start_time.strftime('%H:%M:%S')} น.\n"
+            f"> 🔔 สิ้นสุด: {end_time.strftime('%H:%M:%S')} น.\n\n"
+            "# 📊 รายละเอียด\n"
+            f"> 👥 ผู้เข้าร่วม: 0 คน\n"
+            f"> 👑 ผู้โชคดี: {winners} คน\n"
+            f"> 🎯 โอกาสชนะ: 0%\n\n"
+            "```ini\n"
+            "[กดปุ่ม 🎉 ด้านล่างเพื่อเข้าร่วมลุ้นรางวัล!]\n"
+            "```"
         ),
-        color=discord.Color.gold()
+        color=0xFF1493  # สีชมพูเข้ม
     )
-    embed.set_footer(text=f"จัดโดย {interaction.user.name}")
 
-    # Send giveaway message
-    view = GiveawayView(giveaway_data)
-    message = await interaction.channel.send(embed=embed, view=view)
+    # เพิ่มรูปภาพและ Footer
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=6817498d&is=6815f80d&hm=1598ef3d066cc648a212d128161f986fc6c6ab6d0e81aa55aadcadc35557c4ff&=&format=webp&width=989&height=989")
+    embed.set_footer(text=f"จัดโดย: {interaction.user.name} • DoDEE Premium", 
+                    icon_url=interaction.user.avatar.url)
     
-    # Save message ID
+    # สร้างปุ่มและส่งข้อความ
+    view = GiveawayView(giveaway_data)
+    message = await interaction.channel.send(
+        "||@everyone|| 🌟 **กิจกรรมแจกของรางวัลเริ่มขึ้นแล้ว!**", 
+        embed=embed, 
+        view=view
+    )
+    
+    # บันทึก Message ID
     giveaway_data["message_id"] = message.id
     save_giveaway_data(giveaway_data)
     
-    await interaction.response.send_message("✅ เริ่มกิจกรรมแจกของรางวัลแล้ว!", ephemeral=True)
+    await interaction.response.send_message("✨ เริ่มกิจกรรมแจกของรางวัลแล้ว!", ephemeral=True)
+
+# อัพเดทการแสดงผลเมื่อมีผู้เข้าร่วม
+async def update_giveaway_embed(message, giveaway_data):
+    embed = message.embeds[0]
+    participant_count = len(giveaway_data["participants"])
+    win_chance = (giveaway_data["winners"] / participant_count * 100) if participant_count > 0 else 0
+
+    # อัพเดทข้อมูลใน description
+    parts = embed.description.split("\n")
+    for i, line in enumerate(parts):
+        if "👥 ผู้เข้าร่วม:" in line:
+            parts[i] = f"> 👥 ผู้เข้าร่วม: {participant_count} คน"
+        elif "🎯 โอกาสชนะ:" in line:
+            parts[i] = f"> 🎯 โอกาสชนะ: {win_chance:.1f}%"
+
+    embed.description = "\n".join(parts)
+    await message.edit(embed=embed)
+
+# แก้ไขปุ่มให้สวยงาม
+class GiveawayButton(discord.ui.Button):
+    def __init__(self, giveaway_data: dict):
+        super().__init__(
+            label="🎉 เข้าร่วมลุ้นรางวัล", 
+            style=discord.ButtonStyle.success,
+            custom_id="join_giveaway"
+        )
+        self.giveaway_data = giveaway_data
+
+    async def callback(self, interaction: discord.Interaction):
+        if self.giveaway_data.get("ended", False):
+            embed = discord.Embed(
+                description="❌ กิจกรรมนี้จบไปแล้ว!",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        if interaction.user.id in self.giveaway_data.get("participants", []):
+            embed = discord.Embed(
+                description="❌ คุณได้เข้าร่วมกิจกรรมไปแล้ว!",
+                color=discord.Color.red()
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # เพิ่มผู้เข้าร่วมและอัพเดท UI
+        if "participants" not in self.giveaway_data:
+            self.giveaway_data["participants"] = []
+        self.giveaway_data["participants"].append(interaction.user.id)
+        save_giveaway_data(self.giveaway_data)
+
+        # อัพเดท embed
+        message = interaction.message
+        await update_giveaway_embed(message, self.giveaway_data)
+
+        # ส่งข้อความยืนยัน
+        embed = discord.Embed(
+            description="✅ คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว!",
+            color=discord.Color.green()
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tasks.loop(seconds=10)
 async def check_giveaway():
