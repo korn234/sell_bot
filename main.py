@@ -866,7 +866,6 @@ async def giveaway(interaction: Interaction, name: str, duration: int):
         ),
         view=view
     )
-    # Create the "Join Giveaway" button
 class JoinButton(Button):
     def __init__(self, participants, giveaway_data):
         super().__init__(label="🎉 เข้าร่วมกิจกรรม", style=ButtonStyle.success, custom_id="join_giveaway")
@@ -875,9 +874,16 @@ class JoinButton(Button):
 
     async def callback(self, interaction: Interaction):
         try:
+            # ตรวจสอบว่า giveaway จบแล้วหรือยัง
+            if self.giveaway_data.get("completed", False):
+                await interaction.response.send_message(
+                    "❌ กิจกรรมนี้จบไปแล้ว!",
+                    ephemeral=True
+                )
+                return
+
             # ตรวจสอบว่าผู้ใช้เข้าร่วมแล้วหรือยัง
             if interaction.user.id not in self.participants:
-                # เพิ่มผู้เข้าร่วม
                 self.participants.append(interaction.user.id)
                 self.giveaway_data["participants"] = self.participants
                 save_giveaway_data(self.giveaway_data)
