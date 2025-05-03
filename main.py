@@ -663,10 +663,68 @@ class DailyView(View):
         self.add_item(DailyPriceDropdown())
         self.add_item(AdminContactButton())
 
+# เพิ่มฟังก์ชันเช็คและประกาศผล giveaway ที่ค้างอยู่
+async def check_pending_giveaway():
+    try:
+        data = load_giveaway_data()
+        if not data:
+            return
+            
+        # เช็คว่ามี giveaway ที่ยังไม่จบและถึงเวลาประกาศผลหรือไม่
+        if not data.get("ended", True):
+            thai_tz = pytz.timezone('Asia/Bangkok')
+            now = datetime.now(thai_tz)
+            end_time = datetime.fromisoformat(data["end_time"])
+
+            if now >= end_time.astimezone(thai_tz):
+                channel = bot.get_channel(data["channel_id"])
+                if channel:
+                    participants = data.get("participants", [])
+                    if participants:
+                        # สุ่มผู้ชนะ
+                        num_winners = min(data["winners"], len(participants))
+                        winners = random.sample(participants, num_winners)
+                        
+                        # ประกาศผล
+                        winner_mentions = [f"<@{winner_id}>" for winner_id in winners]
+                        winners_text = ", ".join(winner_mentions)
+
+                        embed = discord.Embed(
+                            title="🎉 ประกาศผู้ชนะ GIVEAWAY! 🎉",
+                            description=(
+                                f"# 🎁 ของรางวัล: {data['prize']}\n"
+                                f"# 👑 ผู้ชนะ: {winners_text}\n\n"
+                                "🎊 ยินดีด้วย! 🎊"
+                            ),
+                            color=discord.Color.green()
+                        )
+
+                        await channel.send(embed=embed)
+                        
+                        # อัพเดทสถานะว่าจบแล้ว
+                        data["ended"] = True
+                        save_giveaway_data(data)
+
+                        # อัพเดทข้อความเดิม
+                        try:
+                            message = await channel.fetch_message(data["message_id"])
+                            original_embed = message.embeds[0]
+                            original_embed.description += "\n\n# 🏆 กิจกรรมจบแล้ว!"
+                            original_embed.color = discord.Color.red()
+                            await message.edit(embed=original_embed)
+                        except:
+                            pass
+
+    except Exception as e:
+        print(f"Error checking pending giveaway: {e}")
+
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
-# โหลดข้อมูล giveaway
+    # เช็ค giveaway ที่ค้างอยู่
+    await check_pending_giveaway()
+    
+    # โหลดข้อมูล giveaway
     giveaway_data = load_giveaway_data()
     
     # เพิ่ม view
