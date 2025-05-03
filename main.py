@@ -919,43 +919,54 @@ class GiveawayView(View):
         super().__init__(timeout=None)
         self.add_item(JoinButton(participants, giveaway_data))
 
-# แก้ไขฟังก์ชัน check_giveaway_winner
+# แก้ไขฟังก์ชันเช็คผู้ชนะ
 @tasks.loop(seconds=10)
 async def check_giveaway_winner():
     try:
         giveaway_data = load_giveaway_data()
         
-        # ตรวจสอบว่ามีข้อมูล giveaway และยังไม่ได้ประกาศผล
-        if ("end_time" in giveaway_data and 
-            not giveaway_data.get("completed", False)):  # เช็คว่ายังไม่ได้ประกาศ
+        # เช็คว่ามีข้อมูล giveaway หรือไม่
+        if not giveaway_data or "end_time" not in giveaway_data:
+            return
+
+        # เช็คว่าประกาศผลไปแล้วหรือยัง
+        if giveaway_data.get("completed", False):
+            return
+
+        end_time = datetime.fromisoformat(giveaway_data["end_time"])
+        current_time = datetime.now(pytz.utc)
             
-            end_time = datetime.fromisoformat(giveaway_data["end_time"])
-            current_time = datetime.now(pytz.utc)
-            
-            # ถ้าถึงเวลาประกาศผล
-            if current_time >= end_time:
-                channel = bot.get_channel(1364857076911833159)
-                participants = giveaway_data.get("participants", [])
+        if current_time >= end_time:
+            channel = bot.get_channel(1364857076911833159)
+            if not channel:
+                print("❌ ไม่พบช่องสำหรับประกาศผล")
+                return
+
+            participants = giveaway_data.get("participants", [])
                 
-                if channel:
-                    if participants:
-                        # สุ่มผู้ชนะ 1 คน
-                        winner_id = random.choice(participants)
-                        await channel.send(
-                            f"🎉 **ผลการแจกของรางวัล!**\n"
-                            f"🎁 รางวัล: **{giveaway_data['name']}**\n"
-                            f"👑 ผู้ชนะคือ: <@{winner_id}>\n"
-                            f"🌟 ยินดีด้วย!"
-                        )
-                    else:
-                        await channel.send(
-                            f"❌ **{giveaway_data['name']}**\n"
-                            "😢 ไม่มีผู้เข้าร่วมกิจกรรม"
-                        )
-                    
-                    # ทำเครื่องหมายว่าประกาศผลแล้ว และเคลียร์ข้อมูล
-                    giveaway_data["completed"] = True
-                    save_giveaway_data(giveaway_data)
+            if participants:
+                # สุ่มผู้ชนะเพียง 1 คน
+                winner_id = random.choice(participants)
+                await channel.send(
+                    f"🎉 **ผลการแจกของรางวัล!**\n"
+                    f"🎁 รางวัล: **{giveaway_data['name']}**\n"
+                    f"👑 ผู้ชนะคือ: <@{winner_id}>\n"
+                    f"🌟 ยินดีด้วย!"
+                )
+            else:
+                await channel.send(
+                    f"❌ **{giveaway_data['name']}**\n"
+                    "😢 ไม่มีผู้เข้าร่วมกิจกรรม"
+                )
+
+            # เคลียร์ข้อมูลหลังประกาศผล
+            giveaway_data = {
+                "name": "",
+                "end_time": "",
+                "participants": [],
+                "completed": True
+            }
+            save_giveaway_data(giveaway_data)
                     
     except Exception as e:
         print(f"❌ เกิดข้อผิดพลาดในการตรวจสอบผู้ชนะ: {e}")
