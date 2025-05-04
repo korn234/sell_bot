@@ -342,7 +342,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://wsfteam.xyz/configprofiles\n\n"
                                             "**กลุ่มอัพเดทข่าวสารโปร**\n"
-                                            "https://t.me/savageios\n\n"
+                                            "https://t.me/savageios\n"
                                             "**ตัวเกม 🎮**\n"
                                             "เข้าเทเลแกรมไปโหลด\n\n https://t.me/savageios\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
