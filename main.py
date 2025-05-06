@@ -65,8 +65,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # Format: (QR URL, Phone number, probability weight)
 SEASON_PAYMENT_OPTIONS = [
     ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 60),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 10),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg?ex=67f5241f&is=67f3d29f&hm=919cdde082227255e674acea218d36bb904c1e92b93b5cdb0f9e66dbd1112654&=&format=webp&width=456&height=988", "094-338-9674", 30)
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251970879983717/S__18849802.jpg", "095-746-4287", 5),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg?ex=67f5241f&is=67f3d29f&hm=919cdde082227255e674acea218d36bb904c1e92b93b5cdb0f9e66dbd1112654&=&format=webp&width=456&height=988", "094-338-9674", 35)
 ]
 
 DAILY_PAYMENT_PAIRS = {
