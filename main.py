@@ -383,7 +383,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม 🎮**\n"
-                                            "https://i.diawi.com/U3Agop\n\n"
+                                            "https://authtool.app/app-store/o3hLgE4opT\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -638,7 +638,7 @@ class GetGameButton(discord.ui.Button):
 
         if has_required_role:
             # Send the game link if the user has the correct role
-            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://i.diawi.com/U3Agop\n\n คีย์\nDoDEE"  # Replace this with the actual game link
+            game_link = "DNSกันดำ(คนไม่ไม่ได้โหลด)\n\n https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n https://authtool.app/app-store/o3hLgE4opT\n\n คีย์\nDoDEE"  # Replace this with the actual game link
             await interaction.response.send_message(
                 f"✅ {interaction.user.mention}, คุณสามารถโหลดตัวเกมได้ที่นี่:\n{game_link}",
                 ephemeral=True
@@ -1300,7 +1300,7 @@ async def on_message(message):
                         # ปุ่มดาวน์โหลดเกมลิงก์ที่ 1
                         game_button1 = discord.ui.Button(
                             label="📱 ดาวน์โหลดเกม (ลิงก์ 1)",
-                            url="https://i.diawi.com/U3Agop",
+                            url="https://authtool.app/app-store/o3hLgE4opT",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(game_button1)
