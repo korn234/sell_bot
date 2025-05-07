@@ -1281,7 +1281,7 @@ async def on_message(message):
                         "> 🛡️ ระบบป้องกันการแบนขั้นสูง\n"
                         "> ⚡ เล่นได้ทุกโหมด\n\n"
                         "# 🔑 คีย์ใช้งาน\n"
-                        "```\n DoDEE \n```\n\n"
+                        "```\n RoVViP \n```\n\n"
                         "# ⚠️ คำแนะนำ\n"
                         "> 📌 ติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
                         "> 🔰 รับประกันความปลอดภัย 100%\n"
@@ -1291,7 +1291,7 @@ async def on_message(message):
                     color=0x2ecc71
                 )
                 
-                embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1368106455525363743/IMG_8041.jpg?ex=681703ed&is=6815b26d&hm=bf9d25bac35d73a95e375356601d04770ffd0f95835b70d51cd025ae19bc429a&format=webp&width=814&height=814")
+                embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1369712717161824256/IMG_0030.jpg?ex=681cdbdf&is=681b8a5f&hm=f4a258466065536692a2326ea3530a960ebbe4ed2f609697c645bed99b1828ac&=&format=webp&width=988&height=989")
                 
                 class DownloadView(discord.ui.View):
                     def __init__(self):
@@ -1308,7 +1308,7 @@ async def on_message(message):
                         # ปุ่มดาวน์โหลดเกมลิงก์ที่ 2
                         game_button2 = discord.ui.Button(
                             label="📱 ดาวน์โหลดเกม (ลิงก์ 2)", 
-                            url="https://kravasigner.com/install?uuid=2a7bfc0b-4539-4fca-9937-0c990b4fcaa8",
+                            url="https://kravasigner.com/install?uuid=c65c485e-030a-43a6-a59b-d539413e1f14",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(game_button2)
@@ -1316,7 +1316,7 @@ async def on_message(message):
                         #ปุ่มดาวน์โหลดเกมลิงค์ที่ 3
                         game_button3 = discord.ui.Button(
                             label="📱 ดาวน์โหลดเกม (Esign,Gbox)",
-                            url="https://drive.google.com/file/d/1zme240GygwAsS1NDLSJNxbvpm3LX2m0a/view?usp=drivesdk",
+                            url="https://drive.google.com/file/d/1G0d7dS4RuLH4hrrqdiXyBnA2aD0oRTS3/view?usp=drivesdk",
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(game_button3)
@@ -1336,14 +1336,7 @@ async def on_message(message):
                             style=discord.ButtonStyle.url
                         )
                         self.add_item(extra_button)
-
-                        #วิดิโอสอนโหลด
-                        video_howtoload = discord.ui.Button(
-                            label="⚒️ วิดิโอสอนโหลด",
-                            url="https://youtube.com/shorts/NoHAxik3Ilo?si=A_5FPbUJHc8wwzbt",
-                            style=discord.ButtonStyle.url
-                        )
-                        self.add_item(video_howtoload)
+                        
                                                 # ปุ่มวิธีติดตั้ง
                         @discord.ui.button(label="📖 วิธีติดตั้ง", style=discord.ButtonStyle.primary)
                         async def guide(self, interaction: discord.Interaction, button: discord.ui.Button):
