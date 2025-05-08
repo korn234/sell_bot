@@ -382,8 +382,8 @@ class ConfirmView(View):
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                                            "**ตัวเกม 🎮**\n"
-                                            "https://authtool.app/app-store/o3hLgE4opT\n\n"
+                                            "**กดลิ้ง แล้วพิมว่า . **\n"
+                                            "https://discord.com/channels/1201075583300419664/1367747079253786715\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -655,7 +655,6 @@ class SeasonView(View):
         super().__init__()
         self.add_item(SeasonPriceDropdown())
         self.add_item(AdminContactButton())
-        self.add_item(GetGameButton())  # Add the new button here
 
 class DailyView(View):
     def __init__(self):
@@ -1270,98 +1269,81 @@ async def sync(interaction: discord.Interaction):
 
 @bot.event
 async def on_message(message):
-    if message.channel.id == 1367747079253786715:
-        if message.content == ".":
-            try:
-                embed = discord.Embed(
-                    title="🎮 ดาวน์โหลดเกม ROV iOS",
-                    description=(
-                        "# 📱 ข้อมูลเกม\n"
-                        "> 🎯 อัพเดทใหม่ล่าสุด!\n"
-                        "> 🛡️ ระบบป้องกันการแบนขั้นสูง\n"
-                        "> ⚡ เล่นได้ทุกโหมด\n\n"
-                        "# 🔑 คีย์ใช้งาน\n"
-                        "```\n RoVViP \n```\n\n"
-                        "# ⚠️ คำแนะนำ\n"
-                        "> 📌 ติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
-                        "> 🔰 รับประกันความปลอดภัย 100%\n"
-                        "> 📱 รองรับ iOS 10 ขึ้นไป\n"
-                        "> ⚡ อัพเดทล่าสุด: 08/05/2568"
-                    ),
-                    color=0x2ecc71
-                )
-                
-                embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1369712717161824256/IMG_0030.jpg?ex=681cdbdf&is=681b8a5f&hm=f4a258466065536692a2326ea3530a960ebbe4ed2f609697c645bed99b1828ac&=&format=webp&width=988&height=989")
-                
-                class DownloadView(discord.ui.View):
-                    def __init__(self):
-                        super().__init__()
-                        
-                        # ปุ่มดาวน์โหลดเกมลิงก์ที่ 1
-                        game_button1 = discord.ui.Button(
-                            label="📱 ดาวน์โหลดเกม (ลิงก์ 1)",
-                            url="https://authtool.app/app-store/o3hLgE4opT",
-                            style=discord.ButtonStyle.url
-                        )
-                        self.add_item(game_button1)
-                        
-                        # ปุ่มดาวน์โหลดเกมลิงก์ที่ 2
-                        game_button2 = discord.ui.Button(
-                            label="📱 ดาวน์โหลดเกม (ลิงก์ 2)", 
-                            url="https://kravasigner.com/install?uuid=c65c485e-030a-43a6-a59b-d539413e1f14",
-                            style=discord.ButtonStyle.url
-                        )
-                        self.add_item(game_button2)
+    # เช็คว่าเป็นช่องที่ต้องการและข้อความที่พิมพ์เป็น "." หรือไม่
+    if message.channel.id == 1367747079253786715 and message.content == ".":
+        try:
+            embed = discord.Embed(
+                title="🎮 ดาวน์โหลดเกม ROV iOS",
+                description=(
+                    "# 📱 ข้อมูลอัพเดท\n"
+                    "> 🆕 เวอร์ชั่นล่าสุด 08/05/2568\n"
+                    "> 🛡️ Anti-Ban System\n"
+                    "> ⚡ รองรับทุกโหมดการเล่น\n"
+                    "> 💫 ฟีเจอร์พิเศษมากมาย\n\n"
+                    "# 🔑 คีย์\n"
+                    "```ansi\n[2;34mRoVViP[0m```\n\n"
+                    "# ⚠️ คำแนะนำการติดตั้ง\n"
+                    "> 1️⃣ ติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
+                    "> 2️⃣ เลือกลิงค์ดาวน์โหลดที่ต้องการ\n" 
+                    "> 3️⃣ ทำตามขั้นตอนการติดตั้ง\n"
+                    "> 4️⃣ เริ่มเล่นได้ทันที!\n\n"
+                    "# 📌 ข้อมูลเพิ่มเติม\n"
+                    "> ✓ รองรับ iOS 10 ขึ้นไป\n"
+                    "> ✓ อัพเดทฟรีตลอดการใช้งาน\n"
+                    "> ✓ รับประกันความปลอดภัย 100%\n"
+                    "> ✓ ซัพพอร์ต 24 ชั่วโมง"
+                ),
+                color=0x2ecc71
+            )
+            
+            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1369712717161824256/IMG_0030.jpg?ex=681cdbdf&is=681b8a5f&hm=f4a258466065536692a2326ea3530a960ebbe4ed2f609697c645bed99b1828ac&=&format=webp&width=988&height=989")
+            embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=681d384d&is=681be6cd&hm=522dde79023b76803c4ad4bd0c8146b1c7d03f0d221286a149e8e7eef7fb6618&=&format=webp&width=989&height=989")
 
-                        #ปุ่มดาวน์โหลดเกมลิงค์ที่ 3
-                        game_button3 = discord.ui.Button(
-                            label="📱 ดาวน์โหลดเกม (Esign,Gbox)",
-                            url="https://drive.google.com/file/d/1G0d7dS4RuLH4hrrqdiXyBnA2aD0oRTS3/view?usp=drivesdk",
-                            style=discord.ButtonStyle.url
-                        )
-                        self.add_item(game_button3)
-                        
-                        # ปุ่มดาวน์โหลด DNS
-                        dns_button = discord.ui.Button(
-                            label="🛡️ ติดตั้ง DNS",
-                            url="https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1",
-                            style=discord.ButtonStyle.url
-                        )
-                        self.add_item(dns_button)
+            class DownloadView(discord.ui.View):
+                def __init__(self):
+                    super().__init__()
+                    
+                    buttons = [
+                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/o3hLgE4opT", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=c65c485e-030a-43a6-a59b-d539413e1f14", discord.ButtonStyle.success),
+                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1G0d7dS4RuLH4hrrqdiXyBnA2aD0oRTS3/view", discord.ButtonStyle.success),
+                        ("🛡️ ติดตั้ง DNS", "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", discord.ButtonStyle.primary),
+                        ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
+                        ("📖 วิธีย้ายไฟล์ทรัพยากร", "https://youtube.com/shorts/MX7HYSY_Ss0?si=whW6GvR3mfaw4ymh", discord.ButtonStyle.danger)
+                    ]
+                    
+                    for label, url, style in buttons:
+                        self.add_item(discord.ui.Button(label=label, url=url, style=style))
 
-                        #ไฟล์ทรัพยากร
-                        extra_button = discord.ui.Button(
-                            label="🪄 ไฟล์ Extra",
-                            url="https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view?usp=drivesdk",
-                            style=discord.ButtonStyle.url
+                    @discord.ui.button(label="📖 วิธีติดตั้ง", style=discord.ButtonStyle.danger, custom_id="guide")
+                    async def guide(self, interaction: discord.Interaction, button: discord.ui.Button):
+                        guide_embed = discord.Embed(
+                            title="📝 คู่มือการติดตั้ง",
+                            description=(
+                                "# 🔰 ขั้นตอนที่ 1: DNS\n"
+                                "> 1️⃣ เปิดลิงก์ DNS\n"
+                                "> 2️⃣ กดติดตั้ง Profile\n"
+                                "> 3️⃣ ตั้งค่า > ทั่วไป > VPN & DNS\n"
+                                "> 4️⃣ เปิดใช้งาน DNS\n\n"
+                                "# 🎮 ขั้นตอนที่ 2: ตัวเกม\n"
+                                "> 1️⃣ เลือกลิงค์ดาวน์โหลด\n"
+                                "> 2️⃣ กด Install/ติดตั้ง\n"
+                                "> 3️⃣ รอติดตั้งจนเสร็จ\n\n"
+                                "# ⚡ ขั้นตอนที่ 3: เริ่มเล่น\n"
+                                "> 1️⃣ เปิดเกมที่ติดตั้ง\n"
+                                "> 2️⃣ ใส่คีย์: `RoVViP`\n"
+                                "> 3️⃣ เริ่มเล่นได้เลย!"
+                            ),
+                            color=discord.Color.blue()
                         )
-                        self.add_item(extra_button)
-                        
-                                                # ปุ่มวิธีติดตั้ง
-                        @discord.ui.button(label="📖 วิธีติดตั้ง", style=discord.ButtonStyle.primary)
-                        async def guide(self, interaction: discord.Interaction, button: discord.ui.Button):
-                            await interaction.response.send_message(
-                                "📝 **วิธีการติดตั้ง**\n\n"
-                                "**ขั้นตอนที่ 1: ติดตั้ง DNS**\n"
-                                "1. เปิดลิงก์ DNS\n"
-                                "2. กดติดตั้ง Profile\n"
-                                "3. ตั้งค่า > ทั่วไป > VPN & DNS\n"
-                                "4. เปิดใช้งาน DNS\n\n"
-                                "**ขั้นตอนที่ 2: ติดตั้งเกม**\n"
-                                "1. เปิดลิงก์ดาวน์โหลด\n" 
-                                "2. กด Install/ติดตั้ง\n"
-                                "3. รอจนติดตั้งเสร็จ\n\n"
-                                "**ขั้นตอนที่ 3: เริ่มใช้งาน**\n"
-                                "1. เปิดเกมที่ติดตั้ง\n"
-                                "2. ใส่คีย์ RoV / V2.0\n"
-                                "3. เริ่มเล่นได้เลย!",
-                                ephemeral=True
-                            )
+                        guide_embed.set_footer(text="หากมีปัญหาติดต่อแอดมิน")
+                        await interaction.response.send_message(embed=guide_embed, ephemeral=True)
 
-                await message.reply(embed=embed, view=DownloadView())
+            await message.reply(embed=embed, view=DownloadView())
                 
-            except discord.HTTPException as e:
-                print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
+        except discord.HTTPException as e:
+            print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
+
     await bot.process_commands(message)
 if __name__ == "__main__":
     from myserver import run_server
