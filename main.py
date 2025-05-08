@@ -1440,56 +1440,75 @@ async def sale_post(ctx, price: str = None):
     embed = discord.Embed(
         title="🎮 ประกาศขาย ID",
         description=(
-            f"## 💰 ราคา: {price} บาท\n\n"
-            f"## 📝 รายละเอียด\n"
-            f"{description}"
+            f"# 💰 ราคา: {price} บาท\n\n"
+            f"# 📝 รายละเอียด\n"
+            f"{description}\n\n"
+            "```\nกดปุ่ม 'สอบถาม/ซื้อ' ด้านล่างเพื่อติดต่อผู้ขาย```"
         ),
         color=0xFF1493
     )
 
     try:
-        # จัดการรูปภาพหลัก
-        main_image = ctx.message.attachments[0]
-        embed.set_image(url=main_image.url)
-        
-        # จัดการรูปภาพเพิ่มเติม
-        additional_images = []
-        for attachment in ctx.message.attachments[1:]:
-            additional_images.append(attachment.url)
-        
-        if additional_images:
-            embed.add_field(
-                name="📸 รูปภาพเพิ่มเติม",
-                value="\n".join([f"[รูปที่ {i+1}]({url})" for i, url in enumerate(additional_images)]),
-                inline=False
-            )
+        # บันทึกและส่งรูปภาพ
+        image_files = []
+        for attachment in ctx.message.attachments:
+            # ตรวจสอบว่าเป็นรูปภาพ
+            if attachment.content_type.startswith('image'):
+                # บันทึกรูปภาพเป็นไฟล์
+                file = await attachment.to_file()
+                image_files.append(file)
+                
+                # ตั้งค่ารูปแรกเป็นรูปหลัก
+                if len(image_files) == 1:
+                    embed.set_image(url=f"attachment://{file.filename}")
+                else:
+                    # เพิ่มรูปที่เหลือเป็น fields
+                    embed.add_field(
+                        name=f"📸 รูปเพิ่มเติม {len(image_files)}",
+                        value="[คลิกเพื่อดู]({})".format(attachment.url),
+                        inline=True
+                    )
 
     except Exception as e:
-        print(f"❌ ไม่สามารถเพิ่มรูปภาพได้: {e}")
+        print(f"❌ ไม่สามารถจัดการรูปภาพได้: {e}")
         await ctx.send("❌ เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ", delete_after=5)
-        await ctx.message.delete()
         return
+
+    # เพิ่ม timestamp
+    embed.timestamp = ctx.message.created_at
 
     # ใส่ footer
     embed.set_footer(
-        text=f"ผู้ขาย: {ctx.author.name}",
+        text=f"ผู้ขาย: {ctx.author.name} • ID: {ctx.author.id}",
         icon_url=ctx.author.avatar.url if ctx.author.avatar else None
     )
 
+    # เพิ่ม thumbnail
+    if ctx.author.avatar:
+        embed.set_thumbnail(url=ctx.author.avatar.url)
+
     try:
-        # ส่ง embed พร้อมปุ่ม
+        # ส่ง embed พร้อมรูปภาพและปุ่ม
         sales_channel = bot.get_channel(1301503694067470367)
-        await sales_channel.send(
+        message = await sales_channel.send(
+            files=image_files,
             embed=embed,
             view=PersistentSaleView(ctx.author, price)
         )
-        
-        # ลบข้อความคำสั่งเดิม
-        await ctx.message.delete()
-        
-    except discord.HTTPException as e:
+
+        # ส่งข้อความยืนยันให้ผู้ขาย
+        confirm_embed = discord.Embed(
+            description=f"✅ โพสต์ประกาศขายเรียบร้อยแล้ว! [คลิกเพื่อดู]({message.jump_url})",
+            color=discord.Color.green()
+        )
+        await ctx.author.send(embed=confirm_embed)
+
+    except Exception as e:
         print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
         await ctx.send("❌ เกิดข้อผิดพลาดในการส่งข้อความ", delete_after=5)
+
+    # ลบข้อความคำสั่งเดิม
+    await ctx.message.delete()
     
 if __name__ == "__main__":
     from myserver import run_server
