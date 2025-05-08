@@ -1296,7 +1296,7 @@ async def on_message(message):
                 color=0x2ecc71
             )
             
-            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1369712717161824256/IMG_0030.jpg?ex=681cdbdf&is=681b8a5f&hm=f4a258466065536692a2326ea3530a960ebbe4ed2f609697c645bed99b1828ac&=&format=webp&width=988&height=989")
+            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1369899375186411580/IMG_0031.jpg?ex=681d89b6&is=681c3836&hm=6b93125d04319cf97cdb658d6b3966f77ac32e8a30f00dc14e84614145621d80&")
             embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=681d384d&is=681be6cd&hm=522dde79023b76803c4ad4bd0c8146b1c7d03f0d221286a149e8e7eef7fb6618&=&format=webp&width=989&height=989")
 
             class DownloadView(discord.ui.View):
@@ -1304,9 +1304,9 @@ async def on_message(message):
                     super().__init__()
                     
                     buttons = [
-                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/o3hLgE4opT", discord.ButtonStyle.success),
-                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=c65c485e-030a-43a6-a59b-d539413e1f14", discord.ButtonStyle.success),
-                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1G0d7dS4RuLH4hrrqdiXyBnA2aD0oRTS3/view", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/z9F5rVYXmS", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=b964d167-24e1-471c-824b-28c434b15d0f", discord.ButtonStyle.success),
+                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1R47oxP7GMvWCPVB1raNWK9fUcfqDJCHN/view?usp=drivesdk", discord.ButtonStyle.success),
                         ("🛡️ ติดตั้ง DNS", "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", discord.ButtonStyle.primary),
                         ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
                         ("📖 วิธีย้ายไฟล์ทรัพยากร", "https://youtube.com/shorts/MX7HYSY_Ss0?si=whW6GvR3mfaw4ymh", discord.ButtonStyle.danger)
