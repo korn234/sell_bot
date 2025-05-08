@@ -1420,7 +1420,7 @@ async def sale_post(ctx, price: str = None):
         await ctx.message.delete()
         return
 
-    # ตรวจสอบว่ามีการระบุราคา
+    # ตรวจสอบราคา
     if not price:
         await ctx.send("❌ กรุณาระบุราคา เช่น !sale 150", delete_after=5)
         await ctx.message.delete()
@@ -1432,27 +1432,43 @@ async def sale_post(ctx, price: str = None):
         await ctx.message.delete()
         return
 
-    # ดึงข้อความหลังคำสั่งทั้งหมด (ไม่รวมราคา)
+    # ดึงข้อความและรายละเอียด
     full_message = ctx.message.content
-    description = " ".join(full_message.split()[2:])  # ข้ามคำสั่งและราคา
+    description = " ".join(full_message.split()[2:])
 
     # สร้าง embed
     embed = discord.Embed(
         title="🎮 ประกาศขาย ID",
-        description=f"💰 ราคา: {price} บาท\n\n{description}",
+        description=(
+            f"## 💰 ราคา: {price} บาท\n\n"
+            f"## 📝 รายละเอียด\n"
+            f"{description}"
+        ),
         color=0xFF1493
     )
 
-    # เพิ่มรูปภาพทั้งหมดที่แนบมา
-    for i, attachment in enumerate(ctx.message.attachments):
-        if i == 0:
-            embed.set_image(url=attachment.url)
-        else:
+    try:
+        # จัดการรูปภาพหลัก
+        main_image = ctx.message.attachments[0]
+        embed.set_image(url=main_image.url)
+        
+        # จัดการรูปภาพเพิ่มเติม
+        additional_images = []
+        for attachment in ctx.message.attachments[1:]:
+            additional_images.append(attachment.url)
+        
+        if additional_images:
             embed.add_field(
-                name=f"รูปเพิ่มเติม {i}",
-                value=attachment.url,
+                name="📸 รูปภาพเพิ่มเติม",
+                value="\n".join([f"[รูปที่ {i+1}]({url})" for i, url in enumerate(additional_images)]),
                 inline=False
             )
+
+    except Exception as e:
+        print(f"❌ ไม่สามารถเพิ่มรูปภาพได้: {e}")
+        await ctx.send("❌ เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ", delete_after=5)
+        await ctx.message.delete()
+        return
 
     # ใส่ footer
     embed.set_footer(
@@ -1460,15 +1476,20 @@ async def sale_post(ctx, price: str = None):
         icon_url=ctx.author.avatar.url if ctx.author.avatar else None
     )
 
-    # ส่ง embed พร้อมปุ่มที่เป็น persistent
-    sales_channel = bot.get_channel(1301503694067470367)
-    await sales_channel.send(
-        embed=embed,
-        view=PersistentSaleView(ctx.author, price)
-    )
-
-    # ลบข้อความคำสั่งเดิม
-    await ctx.message.delete()
+    try:
+        # ส่ง embed พร้อมปุ่ม
+        sales_channel = bot.get_channel(1301503694067470367)
+        await sales_channel.send(
+            embed=embed,
+            view=PersistentSaleView(ctx.author, price)
+        )
+        
+        # ลบข้อความคำสั่งเดิม
+        await ctx.message.delete()
+        
+    except discord.HTTPException as e:
+        print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
+        await ctx.send("❌ เกิดข้อผิดพลาดในการส่งข้อความ", delete_after=5)
     
 if __name__ == "__main__":
     from myserver import run_server
