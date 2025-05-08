@@ -733,6 +733,7 @@ async def on_ready():
     check_giveaway.start()
     clear_and_post.start()
     reset_daily_sales.start()
+    sale_post.start()
     
     try:
         synced = await bot.tree.sync()
@@ -1345,6 +1346,61 @@ async def on_message(message):
             print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
 
     await bot.process_commands(message)
+
+@bot.command(name="sale")
+async def sale_post(ctx, price: str = None):
+    # ตรวจสอบช่อง
+    if ctx.channel.id != 1301503694067470367:
+        await ctx.message.delete()
+        return
+
+    # ตรวจสอบว่ามีการระบุราคา
+    if not price:
+        await ctx.send("❌ กรุณาระบุราคา เช่น !sale 150", delete_after=5)
+        await ctx.message.delete()
+        return
+
+    # ตรวจสอบรูปภาพ
+    if not ctx.message.attachments:
+        await ctx.send("❌ กรุณาแนบรูปภาพสินค้า", delete_after=5)
+        await ctx.message.delete()
+        return
+
+    # ดึงข้อความหลังคำสั่งทั้งหมด (ไม่รวมราคา)
+    full_message = ctx.message.content
+    description = " ".join(full_message.split()[2:])  # ข้ามคำสั่งและราคา
+
+    # สร้าง embed
+    embed = discord.Embed(
+        title="🎮 ประกาศขาย ID",
+        description=f"💰 ราคา: {price} บาท\n\n{description}",
+        color=0xFF1493
+    )
+
+    # เพิ่มรูปภาพทั้งหมดที่แนบมา
+    for i, attachment in enumerate(ctx.message.attachments):
+        if i == 0:
+            embed.set_image(url=attachment.url)
+        else:
+            embed.add_field(
+                name=f"รูปเพิ่มเติม {i}",
+                value=attachment.url,
+                inline=False
+            )
+
+    # ใส่ footer
+    embed.set_footer(
+        text=f"ผู้ขาย: {ctx.author.name}",
+        icon_url=ctx.author.avatar.url if ctx.author.avatar else None
+    )
+
+    # ส่ง embed
+    sales_channel = bot.get_channel(1301503694067470367)
+    await sales_channel.send(embed=embed)
+
+    # ลบข้อความคำสั่งเดิม
+    await ctx.message.delete()
+    
 if __name__ == "__main__":
     from myserver import run_server
     import threading
