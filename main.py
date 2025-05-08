@@ -720,6 +720,9 @@ async def check_pending_giveaway():
 @bot.event
 async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
+    # เพิ่ม persistent views
+    bot.add_view(PersistentCloseView())
+    
     # เช็ค giveaway ที่ค้างอยู่
     await check_pending_giveaway()
     
@@ -1347,6 +1350,70 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+# เพิ่มคลาสหลักสำหรับปุ่มต่างๆ
+class PersistentSaleView(discord.ui.View):
+    def __init__(self, seller, price):
+        super().__init__(timeout=None) # ต้องใส่ timeout=None
+        self.seller = seller
+        self.price = price
+
+    @discord.ui.button(label="💬 สอบถาม/ซื้อ", style=discord.ButtonStyle.primary, custom_id="contact_seller")
+    async def contact_seller(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id == self.seller.id:
+            await interaction.response.send_message("❌ คุณไม่สามารถติดต่อตัวเองได้", ephemeral=True)
+            return
+
+        overwrites = {
+            interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+            interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+            self.seller: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+            interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+        }
+
+        admin_role = discord.utils.get(interaction.guild.roles, name="Admin")
+        if admin_role:
+            overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+
+        channel_name = f"sale-{interaction.user.name}-{self.seller.name}"
+        try:
+            channel = await interaction.guild.create_text_channel(
+                channel_name,
+                overwrites=overwrites,
+                topic=f"การซื้อขาย: {self.price} บาท"
+            )
+
+            chat_embed = discord.Embed(
+                title="💬 ห้องสนทนาซื้อขาย",
+                description=(
+                    f"ผู้ซื้อ: {interaction.user.mention}\n"
+                    f"ผู้ขาย: {self.seller.mention}\n"
+                    f"ราคา: {self.price} บาท\n\n"
+                    "```\nกรุณารอผู้ขายตอบกลับ```"
+                ),
+                color=discord.Color.blue()
+            )
+            
+            await channel.send(embed=chat_embed, view=PersistentCloseView())
+            await interaction.response.send_message(
+                f"✅ สร้างห้องสนทนาแล้ว! กรุณาไปที่ {channel.mention}",
+                ephemeral=True
+            )
+
+        except Exception as e:
+            await interaction.response.send_message(
+                f"❌ ไม่สามารถสร้างห้องแชทได้: {str(e)}",
+                ephemeral=True
+            )
+
+class PersistentCloseView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="🔒 ปิดห้องแชท", style=discord.ButtonStyle.danger, custom_id="close_channel")
+    async def close_channel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.channel.delete()
+
+# แก้ไขคำสั่ง sale
 @bot.command(name="sale")
 async def sale_post(ctx, price: str = None):
     # ตรวจสอบช่อง
@@ -1394,9 +1461,12 @@ async def sale_post(ctx, price: str = None):
         icon_url=ctx.author.avatar.url if ctx.author.avatar else None
     )
 
-    # ส่ง embed
+    # ส่ง embed พร้อมปุ่มที่เป็น persistent
     sales_channel = bot.get_channel(1301503694067470367)
-    await sales_channel.send(embed=embed)
+    await sales_channel.send(
+        embed=embed,
+        view=PersistentSaleView(ctx.author, price)
+    )
 
     # ลบข้อความคำสั่งเดิม
     await ctx.message.delete()
