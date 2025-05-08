@@ -736,7 +736,6 @@ async def on_ready():
     check_giveaway.start()
     clear_and_post.start()
     reset_daily_sales.start()
-    sale_post.start()
     
     try:
         synced = await bot.tree.sync()
