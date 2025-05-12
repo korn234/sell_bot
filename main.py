@@ -54,7 +54,6 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 SEASON_CHANNEL_ID = 1304398097421434930  # ช่องซีซั่น
 DAILY_CHANNEL_ID = 1357307785833873589   # ช่องรายวัน
 STATUS_CHANNEL_ID = 1339360776095531078
-FREEFIRE_CHANNEL_ID = 1371350474036346890
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -73,11 +72,6 @@ SEASON_PAYMENT_OPTIONS = [
 DAILY_PAYMENT_PAIRS = {
     "https://media.discordapp.net/attachments/1357027765794373642/1357323518127247501/New_Project_404_7B9F1CE.png?ex=67efc988&is=67ee7808&hm=c53f3c099338c8d36487fbbd075e3fdb674a3323b33c04e523be36e67fa9cce9&=&format=webp&quality=lossless&width=791&height=989": "097-206-0458"
 }
-
-FREEFIRE_PAYMENT_OPTIONS = [
-    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 60),
-    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg", "094-338-9674", 40)
-]
 
 import json
 import os
@@ -656,64 +650,6 @@ class GetGameButton(discord.ui.Button):
                 ephemeral=True
             )
 
-class FreefireView(discord.ui.View):
-    def __init__(self):
-        super().__init__()
-        self.add_item(FreeFirePriceDropdown())
-        self.add_item(AdminContactButton())
-
-class FreeFirePriceDropdown(discord.ui.Select):
-    def __init__(self):
-        options = [
-            discord.SelectOption(
-                label="30 วัน",
-                description="ราคา 300 บาท",
-                emoji="💎"
-            ),
-            discord.SelectOption(
-                label="ถาวร",
-                description="ราคา 500 บาท",
-                emoji="🌟"
-            )
-        ]
-        super().__init__(
-            placeholder="💰 เลือกแพ็คเกจที่ต้องการ...",
-            options=options,
-            custom_id="select_freefire_price"
-        )
-
-    async def callback(self, interaction: discord.Interaction):
-        selection = self.values[0]
-        if selection == "30 วัน":
-            price = 300
-            duration = "30 วัน"
-        else:
-            price = 500
-            duration = "ถาวร"
-
-        # สุ่ม QR code และเบอร์วอเลท
-        total_weight = sum(weight for _, _, weight in FREEFIRE_PAYMENT_OPTIONS)
-        r = random.uniform(0, total_weight)
-        for qr, phone, weight in FREEFIRE_PAYMENT_OPTIONS:
-            r -= weight
-            if r <= 0:
-                qr_url = qr
-                wallet_phone = phone
-                break
-
-        embed = discord.Embed(
-            title="🎮 ยืนยันการสั่งซื้อ Free Fire",
-            description=(
-                f"💰 ราคา: {price} บาท\n"
-                f"⏱️ ระยะเวลา: {duration}\n"
-                f"📱 เบอร์วอเลท: {wallet_phone}"
-            ),
-            color=discord.Color.blue()
-        )
-        embed.set_image(url=qr_url)
-        view = ConfirmView(price, duration)
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-
 class SeasonView(View):
     def __init__(self):
         super().__init__()
@@ -806,37 +742,6 @@ async def on_ready():
         print(f"✅ Sync {len(synced)} command(s)")
     except Exception as e:
         print(f"❌ เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
-
-    # Add Free Fire view
-    freefire_channel = bot.get_channel(FREEFIRE_CHANNEL_ID)
-    if freefire_channel:
-        # Clear existing messages
-        await freefire_channel.purge()
-        
-        # Post new Free Fire embed
-        embed = discord.Embed(
-            title="🎮 FREE FIRE PREMIUM HACK",
-            description=(
-                "# ⚡ ฟีเจอร์เด็ดๆ\n"
-                "> 🎯 ล็อคเป้า ซูมยิงไกล\n"
-                "> 🛡️ กันแบน กันดำ\n"
-                "> 👁️ ESP มองทะลุ\n"
-                "# 💎 แพ็คเกจและราคา\n"
-                "```md\n"
-                "# 30 วัน\n"
-                "* ราคา 300 บาท\n\n"
-                "# ถาวร\n"
-                "* ราคา 500 บาท\n"
-                "```\n"
-                "# ⭐ สิทธิพิเศษ\n"
-                "> ✅ อัพเดทฟรีตลอดอายุการใช้งาน\n"
-                "> ✅ รับประกันความปลอดภัย\n"
-                "> ✅ ซัพพอร์ต 24 ชั่วโมง\n"
-                "> ✅ iOS"
-            ),
-            color=0xFF6B6B
-        )
-        await freefire_channel.send(embed=embed, view=FreefireView())
 
 # ฟังก์ชันลบข้อความทั้งหมดก่อนโพสต์ใหม่
 async def clear_channels():
@@ -941,35 +846,7 @@ async def post_messages():
         embed2.set_footer(text="✨ เลือกแพ็คเกจด้านล่างเพื่อสั่งซื้อ", icon_url="https://media.discordapp.net/attachments/1302103738164449413/1366824081101553806/att.dB0srZ2U4rRKqjuiovORCx47MUCLGNJW1Bx81KiLbBU.jpg?ex=681453df&is=6813025f&hm=dd30a9b27ccfda00e3a1295c33551fe2ab84f94b27d9a7f9aba69227fc5934ee&=&format=webp&width=989&height=989")
         await season_channel.send(embed=embed2, view=SeasonView())
 
-    freefire_channel = bot.get_channel(FREEFIRE_CHANNEL_ID)
-    if freefire_channel:
-        embed = discord.Embed(
-            title="🎮 FREE FIRE PREMIUM HACK",
-            description=(
-                "# ⚡ ฟีเจอร์เด็ดๆ\n"
-                "> 🎯 ล็อคเป้า ซูมยิงไกล\n"
-                "> 🛡️ กันแบน กันดำ\n"
-                "> 👁️ ESP มองทะลุ\n"
-                "# 💎 แพ็คเกจและราคา\n"
-                "```md\n"
-                "# 30 วัน\n"
-                "* ราคา 300 บาท\n\n"
-                "# ถาวร\n"
-                "* ราคา 500 บาท\n"
-                "```\n"
-                "# ⭐ สิทธิพิเศษ\n"
-                "> ✅ อัพเดทฟรีตลอดอายุการใช้งาน\n"
-                "> ✅ รับประกันความปลอดภัย\n"
-                "> ✅ ซัพพอร์ต 24 ชั่วโมง\n"
-                "> ✅ iOS"
-            ),
-            color=0xFF6B6B
-        )
-        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1369899375186411580/IMG_0031.jpg")
-        embed.set_footer(text="✨ Premium Version • Updated Daily")
-        await freefire_channel.send(embed=embed, view=FreefireView())
-
-# Task ลบข้อความและโพสต์ใหม่ทุก 5 นาที
+# Task ลบข้อความและโพสต์ใหม่ทุก 3 นาที
 @tasks.loop(minutes=5)
 async def clear_and_post():
     await clear_channels()
