@@ -54,6 +54,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 SEASON_CHANNEL_ID = 1304398097421434930  # ช่องซีซั่น
 DAILY_CHANNEL_ID = 1357307785833873589   # ช่องรายวัน
 STATUS_CHANNEL_ID = 1339360776095531078
+FREEFIRE_CHANNEL_ID = 1371350474036346890
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -72,6 +73,302 @@ SEASON_PAYMENT_OPTIONS = [
 DAILY_PAYMENT_PAIRS = {
     "https://media.discordapp.net/attachments/1357027765794373642/1357323518127247501/New_Project_404_7B9F1CE.png?ex=67efc988&is=67ee7808&hm=c53f3c099338c8d36487fbbd075e3fdb674a3323b33c04e523be36e67fa9cce9&=&format=webp&quality=lossless&width=791&height=989": "097-206-0458"
 }
+
+FREEFIRE_PAYMENT_OPTIONS = [
+    ("https://media.discordapp.net/attachments/1234805355188326432/1357251880035811329/IMG_7559.png", "080-781-8346", 60),
+    ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg", "094-338-9674", 40)
+]
+
+class FreefireView(View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(FreeFireDropdown())
+        self.add_item(AdminContactButton())
+
+# Update the FreeFireDropdown class
+class FreeFireDropdown(Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="30 วัน", description="ราคา 300 บาท", emoji="💎"),
+            discord.SelectOption(label="ถาวร", description="ราคา 500 บาท", emoji="🌟"),
+        ]
+        super().__init__(placeholder="💵 เลือกแพ็คเกจที่ต้องการ...", options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        # แสดงการเตือนข้อกำหนดก่อน
+        warning_embed = discord.Embed(
+            title="⚠️ ข้อกำหนดการติดตั้ง",
+            description=(
+                "# 📌 อุปกรณ์ที่จำเป็นต้องมี:\n"
+                "> 💻 คอมพิวเตอร์ (PC/Laptop)\n"
+                "> 📱 GBox (หากไม่มีคอมพิวเตอร์)\n\n"
+                "```diff\n- โปรดอ่าน: จำเป็นต้องมีอย่างใดอย่างหนึ่ง\n```\n"
+                "คุณมีอุปกรณ์ที่จำเป็นหรือไม่?"
+            ),
+            color=discord.Color.yellow()
+        )
+
+        # สร้าง View สำหรับปุ่มยืนยัน
+        class RequirementConfirmView(discord.ui.View):
+            def __init__(self, original_selection):
+                super().__init__()
+                self.original_selection = original_selection
+
+            @discord.ui.button(label="✅ มี พร้อมติดตั้ง", style=discord.ButtonStyle.green)
+            async def confirm(self, button_interaction: discord.Interaction, button: discord.ui.Button):
+                # ดำเนินการต่อหลังจากยืนยันว่ามีอุปกรณ์
+                if self.original_selection == "30 วัน":
+                    price = 300
+                    duration = "30 วัน"
+                else:
+                    price = 500
+                    duration = "ถาวร"
+
+                # สร้างช่องใหม่
+                overwrites = {
+                    button_interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    button_interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+                    button_interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+                }
+
+                admin_role = discord.utils.get(button_interaction.guild.roles, name="Admin")
+                if admin_role:
+                    overwrites[admin_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
+
+                channel = await button_interaction.guild.create_text_channel(
+                    f"freefire-{button_interaction.user.name}",
+                    overwrites=overwrites
+                )
+
+                # สุ่ม QR code
+                total_weight = sum(weight for _, _, weight in FREEFIRE_PAYMENT_OPTIONS)
+                r = random.uniform(0, total_weight)
+                for qr, phone, weight in FREEFIRE_PAYMENT_OPTIONS:
+                    r -= weight
+                    if r <= 0:
+                        qr_url = qr
+                        wallet_phone = phone
+                        break
+
+                # สร้าง embed การชำระเงิน
+                payment_embed = discord.Embed(
+                    title="```💳 ชำระเงิน Free Fire Premium```",
+                    description=(
+                        "# 📋 รายละเอียดการสั่งซื้อ\n"
+                        f"> 👤 ผู้ซื้อ: {button_interaction.user.mention}\n"
+                        f"> 🎮 แพ็คเกจ: {duration}\n"
+                        f"> 💰 ยอดชำระ: {price} บาท\n"
+                        f"> 📱 เบอร์วอเลท: {wallet_phone}\n\n"
+                        "# ⚠️ วิธีการชำระเงิน\n"
+                        "> 1️⃣ สแกน QR Code ด้านล่าง\n"
+                        "> 2️⃣ โอนเงินตามจำนวน\n"
+                        "> 3️⃣ แคปสลิปการโอนเงิน\n"
+                        "> 4️⃣ กดปุ่มยืนยันการชำระเงิน\n\n"
+                        "```ini\n[กรุณาชำระเงินภายใน 5 นาที]```"
+                    ),
+                    color=0xFF6B6B
+                )
+                payment_embed.set_image(url=qr_url)
+                payment_embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg")
+                payment_embed.set_footer(text="✨ Premium Payment System", icon_url=button_interaction.user.avatar.url)
+
+                # สร้าง View สำหรับการยืนยันการชำระเงิน
+                class FreefirePaymentView(discord.ui.View):
+                    def __init__(self):
+                        super().__init__(timeout=None)
+
+                    @discord.ui.button(label="✅ ยืนยันการโอนเงิน", style=discord.ButtonStyle.green)
+                    async def confirm_payment(self, payment_interaction: discord.Interaction, button: discord.ui.Button):
+                        await payment_interaction.response.send_message("📸 กรุณาส่งสลิปการโอนเงิน")
+
+                        def check(m):
+                            return m.author == payment_interaction.user and m.channel == channel and len(m.attachments) > 0
+
+                        try:
+                            msg = await bot.wait_for('message', check=check, timeout=300.0)
+
+                            # ส่งข้อมูลเกมทาง DM
+                            try:
+                                dm_channel = await payment_interaction.user.create_dm()
+                                game_info = discord.Embed(
+                                    title="🎮 Free Fire Premium Hack",
+                                    description=(
+                                        "# 📱 ขั้นตอนการติดตั้ง\n"
+                                        "> 1. ติดตั้ง DNS ก่อน\n"
+                                        "> 2. ดาวน์โหลดและติดตั้งเกม\n"
+                                        "> 3. เข้าเกมและเริ่มใช้งาน\n\n"
+                                        "# 🔗 ลิงก์ดาวน์โหลด\n"
+                                        "**DNS Anti-Ban:**\n"
+                                        "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig\n\n"
+                                        "**ตัวเกม:**\n"
+                                        "https://authtool.app/app-store/o3hLgE4opT"
+                                    ),
+                                    color=discord.Color.green()
+                                )
+                                await dm_channel.send(embed=game_info)
+                                await dm_channel.send("🎥 **วิธีติดตั้ง:**\nhttps://youtu.be/xxxxx")
+
+                                await channel.send("✅ ส่งข้อมูลให้คุณทาง DM แล้ว!")
+
+                            except:
+                                await channel.send("❌ ไม่สามารถส่ง DM ได้ กรุณาเปิดการรับ DM")
+
+                        except asyncio.TimeoutError:
+                            await channel.send("❌ หมดเวลาการส่งสลิป กรุณาทำรายการใหม่")
+
+                    @discord.ui.button(label="❌ ยกเลิก", style=discord.ButtonStyle.red)
+                    async def cancel(self, payment_interaction: discord.Interaction, button: discord.ui.Button):
+                        await channel.delete()
+
+                # ส่ง embed และปุ่มในช่องใหม่
+                await channel.send(embed=payment_embed, view=FreefirePaymentView())
+                await button_interaction.response.send_message(
+                    f"✅ สร้างห้องสำหรับการชำระเงินแล้ว! กรุณาไปที่ {channel.mention}",
+                    ephemeral=True
+                )
+
+            @discord.ui.button(label="❌ ไม่มี ยกเลิก", style=discord.ButtonStyle.red)
+            async def cancel(self, button_interaction: discord.Interaction, button: discord.ui.Button):
+                await button_interaction.response.send_message(
+                    "❌ กรุณาเตรียมอุปกรณ์ให้พร้อมก่อนสั่งซื้อ",
+                    ephemeral=True
+                )
+
+        # ส่งข้อความเตือนพร้อมปุ่ม
+        await interaction.response.send_message(
+            embed=warning_embed,
+            view=RequirementConfirmView(self.values[0]),
+            ephemeral=True
+        )
+
+        class FreefireConfirmView(View):
+            def __init__(self):
+                super().__init__()
+
+            @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
+            async def confirm_payment(self, interaction: discord.Interaction, button: discord.ui.Button):
+                # สุ่ม QR code
+                qr_url, phone, _ = random.choices(
+                    FREEFIRE_PAYMENT_OPTIONS,
+                    weights=[opt[2] for opt in FREEFIRE_PAYMENT_OPTIONS],
+                    k=1
+                )[0]
+
+                # สร้างช่องใหม่
+                overwrites = {
+                    interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                    interaction.user: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+                    interaction.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+                }
+
+                channel = await interaction.guild.create_text_channel(
+                    f"freefire-{interaction.user.name}",
+                    overwrites=overwrites
+                )
+
+                payment_embed = discord.Embed(
+                    title="💳 ชำระเงิน Free Fire",
+                    description=f"กรุณาโอนเงินไปที่เบอร์: {phone}\nจำนวนเงิน: {price} บาท",
+                    color=discord.Color.gold()
+                )
+                payment_embed.set_image(url=qr_url)
+
+                class ConfirmPaymentView(View):
+                    def __init__(self, price, duration):
+                        super().__init__(timeout=None)  # Set timeout to None for persistence
+                        self.price = price
+                        self.duration = duration
+
+                    @discord.ui.button(label="✅ ยืนยันการโอนเงิน", style=discord.ButtonStyle.green)
+                    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+                        await interaction.response.send_message("📸 กรุณาส่งสลิปการโอนเงิน")
+
+                        def check(m):
+                            return m.author == interaction.user and m.channel == channel and len(m.attachments) > 0
+
+                        try:
+                            msg = await bot.wait_for('message', check=check, timeout=300.0)
+
+                            success_embed = discord.Embed(
+                                title="✅ การสั่งซื้อสำเร็จ!",
+                                description="ขอบคุณสำหรับการสั่งซื้อ\nเราได้ส่งข้อมูลให้คุณทาง DM แล้ว",
+                                color=discord.Color.green()
+                            )
+                            await channel.send(embed=success_embed)
+
+                            # ส่งข้อมูลเกมทาง DM
+                            try:
+                                dm_channel = await interaction.user.create_dm()
+                                game_embed = discord.Embed(
+                                    title="🎮 ข้อมูลเกม Free Fire",
+                                    description="ตัวเกม: https://www.mediafire.com/file/s7urw8b5ginw0m9/DoDEE+x+FF+iPA_1.109.1_1746997543.ipa/file ",
+                                    color=discord.Color.blue()
+                                )
+                                await dm_channel.send(embed=game_embed)
+                            except:
+                                await channel.send("❌ ไม่สามารถส่ง DM ได้ กรุณาเปิดการรับ DM")
+
+                        except asyncio.TimeoutError:
+                            await channel.send("❌ หมดเวลาการส่งสลิป กรุณาทำรายการใหม่")
+
+                    @discord.ui.button(label="❌ ยกเลิก", style=discord.ButtonStyle.red)
+                    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+                        await channel.delete()
+
+                    @discord.ui.button(label="🔒 ปิดแชท", style=discord.ButtonStyle.grey)
+                    async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
+                        await channel.delete()
+
+                await channel.send(embed=payment_embed, view=ConfirmPaymentView(price, duration))
+                await interaction.response.send_message(f"✅ สร้างห้องสำหรับการชำระเงินแล้ว! กรุณาไปที่ {channel.mention}", ephemeral=True)
+
+            @discord.ui.button(label="❌ ยกเลิก", style=discord.ButtonStyle.red)
+            async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+                await interaction.response.send_message("❌ ยกเลิกการสั่งซื้อแล้ว", ephemeral=True)
+
+        await interaction.response.send_message(embed=embed, view=FreefireConfirmView(), ephemeral=True)
+
+@tasks.loop(minutes=5)
+async def post_freefire_message():
+    channel = bot.get_channel(FREEFIRE_CHANNEL_ID)
+    if channel:
+        await channel.purge()
+
+        # Embed หลัก
+        main_embed = discord.Embed(
+            title="```🎮 FREE FIRE PREMIUM HACK 🎮```",
+            description=(
+                "# 🌟 ฟีเจอร์พรีเมียม\n"
+                "> 🎯 ล็อคหัวตึงๆ\n"
+                "> 👁️ ESP\n" 
+                "> 🛡️ กันแบน กันดำ\n\n"
+                "# 💎 แพ็คเกจและราคา\n"
+                "```ini\n"
+                "[แพ็คเกจ 30 วัน]\n"
+                "💰 ราคาพิเศษ 300 บาท\n"
+                "✨ ฟรี! อัพเดทตลอดการใช้งาน\n\n"
+                "[แพ็คเกจถาวร]\n" 
+                "💎 ราคาเพียง 500 บาท\n"
+                "🌟 รับสิทธิ์ ตลอดชีพ\n"
+                "```\n\n"
+                "# ⭐ สิทธิประโยชน์\n"
+                "> ✅ อัพเดทฟรีตลอดอายุการใช้งาน\n"
+                "> ✅ รับประกันความปลอดภัย 100%\n"
+                "> ✅ ทีมงานซัพพอร์ต 24 ชม.\n"
+                "> ✅ มีคลิปสอนใช้งานละเอียด\n"
+                "> ✅ รองรับทุกเวอร์ชั่นเกม"
+            ),
+            color=0xFF6B6B
+        )
+
+        # ตกแต่ง Embed
+        main_embed.set_thumbnail(url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=68227e4d&is=68212ccd&hm=6f6f8399818fdf7ab3a7431a0a399e43444165df19ccea9309556793a4b3939f&=&format=webp&width=989&height=989")
+        main_embed.set_image(url="https://media.discordapp.net/attachments/1301468241335681024/1371339382178578553/IMG_0045.png?ex=6822c6d2&is=68217552&hm=570e39a1452c6af722bc8619940ac94f5823aa696f9344f40662295f2a454edd&=&format=webp&quality=lossless&width=1860&height=859")
+        main_embed.set_footer(text="✨ Updated Today • Premium Version", icon_url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=68227e4d&is=68212ccd&hm=6f6f8399818fdf7ab3a7431a0a399e43444165df19ccea9309556793a4b3939f&=&format=webp&width=989&height=989")
+
+        # ส่งข้อความทั้งหมด
+        await channel.send(embed=main_embed)
+        await channel.send("```ini\n[กดปุ่มด้านล่างเพื่อสั่งซื้อหรือดูข้อมูลเพิ่มเติม]```", view=FreefireView())
 
 import json
 import os
@@ -195,7 +492,7 @@ class ConfirmView(View):
             description=status,
             color=color
         )
-        
+
         try:
             if self.status_message:
                 await self.status_message.edit(embed=embed)
@@ -265,9 +562,8 @@ class ConfirmView(View):
 
         # Create confirmation view
         class ConfirmPaymentView(View):
-
             def __init__(self, price, duration):
-                super().__init__()
+                super().__init__(timeout=None)  # Set timeout to None for persistence
                 self.price = price
                 self.duration = duration
 
@@ -467,8 +763,7 @@ class ConfirmView(View):
                     await interaction.response.send_message("❌ มีบางอย่างผิดพลาด.", ephemeral=True)
 
         class HelpButton(Button):
-            def __init__(self):
-                super().__init__(label="🛠️ มีปัญหาการติดตั้ง? กดที่นี่", style=discord.ButtonStyle.danger)
+            def __init__(self):super().__init__(label="🛠️ มีปัญหาการติดตั้ง? กดที่นี่", style=discord.ButtonStyle.danger)
 
             async def callback(self, interaction: discord.Interaction):
                 try:
@@ -631,7 +926,7 @@ class GetGameButton(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         # Define the required role IDs
         required_role_ids = [1364253774977175652, 1337637128410103882]  # Replace with actual role IDs
-        
+
         # Check if the user has at least one of the required roles
         user_roles = [role.id for role in interaction.user.roles]
         has_required_role = any(role_id in user_roles for role_id in required_role_ids)
@@ -668,7 +963,7 @@ async def check_pending_giveaway():
         data = load_giveaway_data()
         if not data:
             return
-            
+
         # เช็คว่ามี giveaway ที่ยังไม่จบและถึงเวลาประกาศผลหรือไม่
         if not data.get("ended", True):
             thai_tz = pytz.timezone('Asia/Bangkok')
@@ -683,7 +978,7 @@ async def check_pending_giveaway():
                         # สุ่มผู้ชนะ
                         num_winners = min(data["winners"], len(participants))
                         winners = random.sample(participants, num_winners)
-                        
+
                         # ประกาศผล
                         winner_mentions = [f"<@{winner_id}>" for winner_id in winners]
                         winners_text = ", ".join(winner_mentions)
@@ -699,7 +994,7 @@ async def check_pending_giveaway():
                         )
 
                         await channel.send(embed=embed)
-                        
+
                         # อัพเดทสถานะว่าจบแล้ว
                         data["ended"] = True
                         save_giveaway_data(data)
@@ -722,24 +1017,26 @@ async def on_ready():
     print(f"✅ บอท {bot.user} พร้อมทำงานแล้ว!")
     # เพิ่ม persistent views
     bot.add_view(PersistentCloseView())
-    
+
     # เช็ค giveaway ที่ค้างอยู่
     await check_pending_giveaway()
-    
+
     # โหลดข้อมูล giveaway
     giveaway_data = load_giveaway_data()
-    
+
     # เพิ่ม view
     bot.add_view(GiveawayView(giveaway_data))
-    
+
     # เริ่ม tasks
     check_giveaway.start()
     clear_and_post.start()
     reset_daily_sales.start()
-    
+
     try:
         synced = await bot.tree.sync()
         print(f"✅ Sync {len(synced)} command(s)")
+        # Start FreeFire message loop
+        post_freefire_message.start()
     except Exception as e:
         print(f"❌ เกิดข้อผิดพลาดในการซิงค์คำสั่ง: {e}")
 
@@ -869,7 +1166,7 @@ GIVEAWAY_DATA_FILE = "giveaway_data.json"
 def save_giveaway_data(data):
     with open(GIVEAWAY_DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
-        
+
 # ฟังก์ชันโหลดข้อมูลการแจกของรางวัล
 def load_giveaway_data():
     if os.path.exists(GIVEAWAY_DATA_FILE):
@@ -1061,7 +1358,7 @@ async def check_giveaway():
             )
 
             await channel.send(embed=winner_embed)
-            
+
             # มาร์คว่าจบแล้ว
             data["ended"] = True
             save_giveaway_data(data)
@@ -1206,7 +1503,7 @@ async def shop_status(interaction: discord.Interaction):
         description="ร้านขายโปร ROV iOS ",
         color=discord.Color.gold()
     )
-    
+
     embed.add_field(
         name="📊 สถิติร้าน",
         value=f"👥 ลูกค้าทั้งหมด: {len(interaction.guild.members)}\n"
@@ -1214,16 +1511,16 @@ async def shop_status(interaction: discord.Interaction):
               f"⭐ คะแนนรีวิว: 4.9/5.0",
         inline=False
     )
-    
+
     embed.add_field(
         name="⏰ เวลาทำการ",
         value="เปิดทุกวัน 24 ชม.",
         inline=True
     )
-    
+
     embed.set_thumbnail(url="https://media.discordapp.net/attachments/1366123564771835994/1367160525493899345/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=68143bb5&is=6812ea35&hm=7993be233d805b54f1b6cc3535b6a41fee01e69457ac43178dd33fbf180f05ef&=&format=webp&width=989&height=989")
     embed.set_footer(text="อัพเดทล่าสุด")
-    
+
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="review", description="รีวิวสินค้า")
@@ -1232,7 +1529,7 @@ async def review(interaction: discord.Interaction, rating: int, comment: str = N
     if rating < 1 or rating > 5:
         await interaction.response.send_message("❌ กรุณาให้คะแนน 1-5 ดาว", ephemeral=True)
         return
-        
+
     stars = "⭐" * rating
     embed = discord.Embed(
         title="📝 รีวิวจากลูกค้า",
@@ -1243,7 +1540,7 @@ async def review(interaction: discord.Interaction, rating: int, comment: str = N
         name=interaction.user.name,
         icon_url=interaction.user.avatar.url
     )
-    
+
     review_channel = bot.get_channel(1337638812293267546)
     await review_channel.send(embed=embed)
     await interaction.response.send_message("✅ ขอบคุณสำหรับรีวิว!", ephemeral=True)
@@ -1253,7 +1550,7 @@ async def sync(interaction: discord.Interaction):
     if not any(role.name == "Admin" for role in interaction.user.roles):
         await interaction.response.send_message("❌ คุณไม่มีสิทธิ์ใช้คำสั่งนี้", ephemeral=True)
         return
-        
+
     try:
         print("🔄 กำลัง Sync commands...")
         synced = await bot.tree.sync()
@@ -1298,14 +1595,14 @@ async def on_message(message):
                 ),
                 color=0x2ecc71
             )
-            
+
             embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1369899375186411580/IMG_0031.jpg?ex=681d89b6&is=681c3836&hm=6b93125d04319cf97cdb658d6b3966f77ac32e8a30f00dc14e84614145621d80&")
             embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=681d384d&is=681be6cd&hm=522dde79023b76803c4ad4bd0c8146b1c7d03f0d221286a149e8e7eef7fb6618&=&format=webp&width=989&height=989")
 
             class DownloadView(discord.ui.View):
                 def __init__(self):
                     super().__init__()
-                    
+
                     buttons = [
                         ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/z9F5rVYXmS", discord.ButtonStyle.success),
                         ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=b964d167-24e1-471c-824b-28c434b15d0f", discord.ButtonStyle.success),
@@ -1314,7 +1611,7 @@ async def on_message(message):
                         ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
                         ("📖 วิธีย้ายไฟล์ทรัพยากร", "https://youtube.com/shorts/MX7HYSY_Ss0?si=whW6GvR3mfaw4ymh", discord.ButtonStyle.danger)
                     ]
-                    
+
                     for label, url, style in buttons:
                         self.add_item(discord.ui.Button(label=label, url=url, style=style))
 
@@ -1343,7 +1640,7 @@ async def on_message(message):
                         await interaction.response.send_message(embed=guide_embed, ephemeral=True)
 
             await message.reply(embed=embed, view=DownloadView())
-                
+
         except discord.HTTPException as e:
             print(f"❌ ไม่สามารถส่งข้อความได้: {e}")
 
@@ -1391,7 +1688,7 @@ class PersistentSaleView(discord.ui.View):
                 ),
                 color=discord.Color.blue()
             )
-            
+
             await channel.send(embed=chat_embed, view=PersistentCloseView())
             await interaction.response.send_message(
                 f"✅ สร้างห้องสนทนาแล้ว! กรุณาไปที่ {channel.mention}",
@@ -1457,7 +1754,7 @@ async def sale_post(ctx, price: str = None):
                 # บันทึกรูปภาพเป็นไฟล์
                 file = await attachment.to_file()
                 image_files.append(file)
-                
+
                 # ตั้งค่ารูปแรกเป็นรูปหลัก
                 if len(image_files) == 1:
                     embed.set_image(url=f"attachment://{file.filename}")
@@ -1509,7 +1806,7 @@ async def sale_post(ctx, price: str = None):
 
     # ลบข้อความคำสั่งเดิม
     await ctx.message.delete()
-    
+
 if __name__ == "__main__":
     from myserver import run_server
     import threading
