@@ -193,20 +193,15 @@ class FreeFireDropdown(Select):
                                 game_info = discord.Embed(
                                     title="🎮 Free Fire Premium Hack",
                                     description=(
-                                        "# 📱 ขั้นตอนการติดตั้ง\n"
-                                        "> 1. ติดตั้ง DNS ก่อน\n"
-                                        "> 2. ดาวน์โหลดและติดตั้งเกม\n"
-                                        "> 3. เข้าเกมและเริ่มใช้งาน\n\n"
+                                        "# 📱 ขั้นตอนการติดตั้ง\n\n"
                                         "# 🔗 ลิงก์ดาวน์โหลด\n"
-                                        "**DNS Anti-Ban:**\n"
-                                        "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig\n\n"
                                         "**ตัวเกม:**\n"
-                                        "https://authtool.app/app-store/o3hLgE4opT"
+                                        "https://www.mediafire.com/file/s7urw8b5ginw0m9/DoDEE+x+FF+iPA_1.109.1_1746997543.ipa/file"
                                     ),
                                     color=discord.Color.green()
                                 )
                                 await dm_channel.send(embed=game_info)
-                                await dm_channel.send("🎥 **วิธีติดตั้ง:**\nhttps://youtu.be/xxxxx")
+                                await dm_channel.send("🎥 **วิธีติดตั้ง:**\nhttps://youtu.be/wPie4ezB3U0?si=QmMuxu-L_sTqgKKr")
 
                                 await channel.send("✅ ส่งข้อมูลให้คุณทาง DM แล้ว!")
 
