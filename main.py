@@ -1518,28 +1518,53 @@ async def shop_status(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="review", description="รีวิวสินค้า")
-@app_commands.describe(rating="คะแนน 1-5 ดาว", comment="ความคิดเห็นเพิ่มเติม")
-async def review(interaction: discord.Interaction, rating: int, comment: str = None):
-    if rating < 1 or rating > 5:
-        await interaction.response.send_message("❌ กรุณาให้คะแนน 1-5 ดาว", ephemeral=True)
+@bot.command(name="review")
+async def review(ctx, rating: str, *, comment: str = None):
+    """รีวิวสินค้า (!review <1-5 ดาว> [ความคิดเห็น])"""
+    # Delete the command message
+    await ctx.message.delete()
+    
+    # Convert rating to int and validate
+    try:
+        stars = int(rating)
+        if stars < 1 or stars > 5:
+            await ctx.send("❌ กรุณาให้คะแนน 1-5 ดาว", delete_after=5)
+            return
+    except ValueError:
+        await ctx.send("❌ กรุณาใส่คะแนนเป็นตัวเลข 1-5", delete_after=5)
         return
 
-    stars = "⭐" * rating
+    # Create review embed
+    stars_emoji = "⭐" * stars
     embed = discord.Embed(
-        title="📝 รีวิวจากลูกค้า",
-        description=f"{stars}\n\n{comment if comment else 'ไม่มีความคิดเห็นเพิ่มเติม'}",
-        color=discord.Color.green()
+        title="```📝 รีวิวจากลูกค้า```",
+        description=(
+            f"# ⭐ คะแนน\n"
+            f"> {stars_emoji}\n\n"
+            f"# 💭 ความคิดเห็น\n"
+            f"> {comment if comment else 'ไม่มีความคิดเห็นเพิ่มเติม'}"
+        ),
+        color=discord.Color.gold()
     )
+    
+    # Add author info
     embed.set_author(
-        name=interaction.user.name,
-        icon_url=interaction.user.avatar.url
+        name=ctx.author.name,
+        icon_url=ctx.author.avatar.url if ctx.author.avatar else None
     )
-
+    
+    # Add timestamp
+    embed.timestamp = ctx.message.created_at
+    
+    # Send to review channel
     review_channel = bot.get_channel(1337638812293267546)
-    await review_channel.send(embed=embed)
-    await interaction.response.send_message("✅ ขอบคุณสำหรับรีวิว!", ephemeral=True)
-
+    if review_channel:
+        await review_channel.send(embed=embed)
+        # Send confirmation
+        confirm = await ctx.send("✅ ขอบคุณสำหรับรีวิว!")
+        await confirm.delete(delay=5)
+    else:
+        await ctx.send("❌ ไม่พบช่องสำหรับรีวิว", delete_after=5)
 @bot.tree.command(name="sync", description="Sync slash commands (Admin only)")
 async def sync(interaction: discord.Interaction):
     if not any(role.name == "Admin" for role in interaction.user.roles):
