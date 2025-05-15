@@ -87,13 +87,14 @@ FREEFIRE_PAYMENT_OPTIONS = [
     ("https://media.discordapp.net/attachments/1234805355188326432/1358795179414392973/IMG_7604.jpg", "094-338-9674", 40)
 ]
 
+# เพิ่มในส่วนของ FreefireView class
 class FreefireView(View):
     def __init__(self):
         super().__init__()
         self.add_item(FreeFireDropdown())
         self.add_item(AdminContactButton())
 
-# Update the FreeFireDropdown class
+# แก้ไข FreeFireDropdown class
 class FreeFireDropdown(Select):
     def __init__(self):
         options = [
@@ -101,6 +102,12 @@ class FreeFireDropdown(Select):
             discord.SelectOption(label="ถาวร", description="ราคา 500 บาท", emoji="🌟"),
         ]
         super().__init__(placeholder="💵 เลือกแพ็คเกจที่ต้องการ...", options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        # ตรวจสอบ blacklist ก่อน
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", ephemeral=True)
+            return
 
     async def callback(self, interaction: discord.Interaction):
         # แสดงการเตือนข้อกำหนดก่อน
