@@ -17,6 +17,14 @@ import aiohttp
 from datetime import datetime, timedelta
 import pytz
 
+# Add this at the top of your code with other global variables
+BLACKLISTED_ROLE_ID = 1372512776429375489
+
+# Create a helper function to check if user is blacklisted
+def is_blacklisted(user):
+    """Check if user has the blacklisted role"""
+    return any(role.id == BLACKLISTED_ROLE_ID for role in user.roles)
+
 # โหลดค่าในไฟล์ .env
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -500,6 +508,12 @@ class ConfirmView(View):
             except Exception as e:
                 print(f"❌ ไม่สามารถส่งข้อความสถานะได้: {e}")
 
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", ephemeral=True)
+            return False
+        return True
+    
     @discord.ui.button(label="✅ ยืนยัน", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction,
                       button: discord.ui.Button):
@@ -815,6 +829,10 @@ class SeasonPriceDropdown(Select):
                          custom_id="select_season_price")
 
     async def callback(self, interaction: discord.Interaction):
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", ephemeral=True)
+            return
+ 
         selection = self.values[0]
         if selection == "1 ซีซั่น":
             price = 150
@@ -858,6 +876,10 @@ class DailyPriceDropdown(Select):
                          custom_id="select_daily_price")
 
     async def callback(self, interaction: discord.Interaction):
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", ephemeral=True)
+            return
+            
         selection = self.values[0]
         if selection == "3 วัน":
             price = 99
@@ -1675,6 +1697,11 @@ class PersistentSaleView(discord.ui.View):
 
     @discord.ui.button(label="💬 สอบถาม/ซื้อ", style=discord.ButtonStyle.primary, custom_id="contact_seller")
     async def contact_seller(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Check if user is blacklisted
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", ephemeral=True)
+            return
+
         if interaction.user.id == self.seller.id:
             await interaction.response.send_message("❌ คุณไม่สามารถติดต่อตัวเองได้", ephemeral=True)
             return
@@ -1732,6 +1759,11 @@ class PersistentCloseView(discord.ui.View):
 # แก้ไขคำสั่ง sale
 @bot.command(name="sale")
 async def sale_post(ctx, price: str = None):
+    # Check if user is blacklisted
+    if is_blacklisted(ctx.author):
+        await ctx.send("❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน", delete_after=5)
+        await ctx.message.delete()
+        return
     # ตรวจสอบช่อง
     if ctx.channel.id != 1301503694067470367:
         await ctx.message.delete()
