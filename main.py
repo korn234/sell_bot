@@ -94,6 +94,16 @@ class FreefireView(View):
         self.add_item(FreeFireDropdown())
         self.add_item(AdminContactButton())
 
+    # เพิ่มการตรวจสอบก่อนที่จะแสดง view
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if is_blacklisted(interaction.user):
+            await interaction.response.send_message(
+                "❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน",
+                ephemeral=True
+            )
+            return False
+        return True
+
 # แก้ไข FreeFireDropdown class
 class FreeFireDropdown(Select):
     def __init__(self):
@@ -128,6 +138,15 @@ class FreeFireDropdown(Select):
             def __init__(self, original_selection):
                 super().__init__()
                 self.original_selection = original_selection
+
+            async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                if is_blacklisted(interaction.user):
+                    await interaction.response.send_message(
+                        "❌ คุณไม่สามารถใช้คำสั่งนี้ได้เนื่องจากถูกแบน",
+                        ephemeral=True
+                    )
+                    return False
+                return True
 
             @discord.ui.button(label="✅ มี พร้อมติดตั้ง", style=discord.ButtonStyle.green)
             async def confirm(self, button_interaction: discord.Interaction, button: discord.ui.Button):
