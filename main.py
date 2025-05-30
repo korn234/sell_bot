@@ -713,8 +713,8 @@ class ConfirmView(View):
                                 description=f"ขอบคุณสำหรับการสั่งซื้อ!\n\n"
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
-                                            "**กดลิ้ง แล้วพิมว่า . **\n"
-                                            "https://discord.com/channels/1201075583300419664/1367747079253786715\n\n"
+                                            "**ตัวเกม**\n"
+                                            "https://authtool.app/app-store/vhEoHOkPmF\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -1649,7 +1649,7 @@ async def on_message(message):
                     "> ⚡ รองรับทุกโหมดการเล่น\n"
                     "> 💫 ฟีเจอร์พิเศษมากมาย\n\n"
                     "# 🔑 คีย์\n"
-                    "```ansi\nRoVViP```\n\n"
+                    "```ansi\nDoDEE```\n\n"
                     "# ⚠️ คำแนะนำการติดตั้ง\n"
                     "> 1️⃣ ติดตั้ง DNS ก่อนดาวน์โหลดเกม\n"
                     "> 2️⃣ เลือกลิงค์ดาวน์โหลดที่ต้องการ\n" 
@@ -1664,17 +1664,17 @@ async def on_message(message):
                 color=0x2ecc71
             )
 
-            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1301468241335681024/1369899375186411580/IMG_0031.jpg?ex=681d89b6&is=681c3836&hm=6b93125d04319cf97cdb658d6b3966f77ac32e8a30f00dc14e84614145621d80&")
-            embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1301468241335681024/1368181218180333568/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=681d384d&is=681be6cd&hm=522dde79023b76803c4ad4bd0c8146b1c7d03f0d221286a149e8e7eef7fb6618&=&format=webp&width=989&height=989")
+            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1371508901656399884/1377986644736610487/IMG_0086.jpg?ex=683af591&is=6839a411&hm=b8a8a0887d26896260293d162053248e1aef8d3d58ef241c4a40ac062a537509&=&format=webp&width=920&height=920")
+            embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1371508901656399884/1377986644736610487/IMG_0086.jpg?ex=683af591&is=6839a411&hm=b8a8a0887d26896260293d162053248e1aef8d3d58ef241c4a40ac062a537509&=&format=webp&width=920&height=920")
 
             class DownloadView(discord.ui.View):
                 def __init__(self):
                     super().__init__()
 
                     buttons = [
-                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/z9F5rVYXmS", discord.ButtonStyle.success),
-                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=b964d167-24e1-471c-824b-28c434b15d0f", discord.ButtonStyle.success),
-                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1R47oxP7GMvWCPVB1raNWK9fUcfqDJCHN/view?usp=drivesdk", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/vhEoHOkPmF", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=c4524d3d-41dc-42f1-bc2b-0f4f550c62d8", discord.ButtonStyle.success),
+                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1GATIFkMJ2y4858YPs2KM_k_7D2yBy77s/view?usp=drivesdk", discord.ButtonStyle.success),
                         ("🛡️ ติดตั้ง DNS", "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", discord.ButtonStyle.primary),
                         ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
                         ("📖 วิธีย้ายไฟล์ทรัพยากร", "https://youtube.com/shorts/MX7HYSY_Ss0?si=whW6GvR3mfaw4ymh", discord.ButtonStyle.danger)
