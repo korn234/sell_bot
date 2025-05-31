@@ -714,7 +714,7 @@ class ConfirmView(View):
                                             "**DNS กันดำ ☣️**\n"
                                             "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1\n\n"
                                             "**ตัวเกม**\n"
-                                            "https://authtool.app/app-store/vhEoHOkPmF\n\n"
+                                            "https://authtool.app/app-store/g8J0r2mn4s\n\n"
                                             f"**คีย์ใช้งาน ({self.duration})**\n"
                                             f"```\n{key}\n```",
                                 color=discord.Color.gold()
@@ -1672,8 +1672,8 @@ async def on_message(message):
                     super().__init__()
 
                     buttons = [
-                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/vhEoHOkPmF", discord.ButtonStyle.success),
-                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=c4524d3d-41dc-42f1-bc2b-0f4f550c62d8", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/g8J0r2mn4s", discord.ButtonStyle.success),
+                        ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=fcefd676-b527-4c85-8c87-41edc906250f", discord.ButtonStyle.success),
                         ("📱 ESign / GBox", "https://drive.google.com/file/d/1GATIFkMJ2y4858YPs2KM_k_7D2yBy77s/view?usp=drivesdk", discord.ButtonStyle.success),
                         ("🛡️ ติดตั้ง DNS", "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", discord.ButtonStyle.primary),
                         ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
