@@ -1123,7 +1123,7 @@ async def post_messages():
                           "```\n"
                           "**📱 สถานะเกม**\n"
                           "```css\n"
-                          "• ROV iOS รายซีซั่น (08/05/68)   🟡\n"
+                          "• ROV iOS รายซีซั่น (V2) (01/06/68)   🟢\n"
                           "• ROV iOS รายวัน (07/05/68)    🟢\n"
                           "• ROV Android                 🟢\n"
                           "• Free Fire                   🟢\n"
@@ -1664,8 +1664,8 @@ async def on_message(message):
                 color=0x2ecc71
             )
 
-            embed.set_thumbnail(url="https://media.discordapp.net/attachments/1371508901656399884/1377986644736610487/IMG_0086.jpg?ex=683af591&is=6839a411&hm=b8a8a0887d26896260293d162053248e1aef8d3d58ef241c4a40ac062a537509&=&format=webp&width=920&height=920")
-            embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://media.discordapp.net/attachments/1371508901656399884/1377986644736610487/IMG_0086.jpg?ex=683af591&is=6839a411&hm=b8a8a0887d26896260293d162053248e1aef8d3d58ef241c4a40ac062a537509&=&format=webp&width=920&height=920")
+            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1371508901656399884/1378596049765007390/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=683d2d1f&is=683bdb9f&hm=6bb30e103b62d6d7e5222c68968f49f3b80429dbcc743a5e67303134cf39c57d&")
+            embed.set_footer(text="✨ Premium Version • Updated Today", icon_url="https://cdn.discordapp.com/attachments/1371508901656399884/1378596049765007390/att.-tSGKz9H0h_YYa1oXLy-3Y08qniWWH4WoIuvlicUENA.jpg?ex=683d2d1f&is=683bdb9f&hm=6bb30e103b62d6d7e5222c68968f49f3b80429dbcc743a5e67303134cf39c57d&")
 
             class DownloadView(discord.ui.View):
                 def __init__(self):
@@ -1674,7 +1674,7 @@ async def on_message(message):
                     buttons = [
                         ("📱 ลิงค์ดาวน์โหลด #1", "https://authtool.app/app-store/g8J0r2mn4s", discord.ButtonStyle.success),
                         ("📱 ลิงค์ดาวน์โหลด #2", "https://kravasigner.com/install?uuid=fcefd676-b527-4c85-8c87-41edc906250f", discord.ButtonStyle.success),
-                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1GATIFkMJ2y4858YPs2KM_k_7D2yBy77s/view?usp=drivesdk", discord.ButtonStyle.success),
+                        ("📱 ESign / GBox", "https://drive.google.com/file/d/1MIfP0lqnQdK5Z1zZlZ2qSQd2VLndJ9bJ/view?usp=drivesdk", discord.ButtonStyle.success),
                         ("🛡️ ติดตั้ง DNS", "https://khoindvn.io.vn/document/DNS/khoindns.mobileconfig?sign=1", discord.ButtonStyle.primary),
                         ("🌟 ไฟล์ Extra", "https://drive.google.com/file/d/1hBVggnrFQJ4gWyVxKhr0ZI8xy2Xn-4xK/view", discord.ButtonStyle.secondary),
                         ("📖 วิธีย้ายไฟล์ทรัพยากร", "https://youtube.com/shorts/MX7HYSY_Ss0?si=whW6GvR3mfaw4ymh", discord.ButtonStyle.danger)
